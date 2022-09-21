@@ -1,0 +1,17 @@
+if(ENABLE_FFTW)
+  message("Building with FFTW")
+  add_definitions(-DUSE_FFTW)
+  find_package(FFTW3 CONFIG REQUIRED)
+  set(FFT_LIBRARY FFTW3::fftw3 PARENT_SCOPE)
+  add_library(btrack_fft btrack_fft_fftw.cpp)
+else() 
+  message("Building with KISS FFT")
+  add_definitions(-DUSE_KISS_FFT)
+  set(KISSFFT_STATIC ON)
+  find_package(unofficial-kissfft CONFIG REQUIRED)
+  set(FFT_LIBRARY unofficial::kissfft::kissfft PARENT_SCOPE)
+  add_library(btrack_fft btrack_fft_kissfft.cpp)
+endif()
+
+target_link_libraries(btrack_fft PRIVATE ${FFT_LIBRARY} SampleRate::samplerate)
+
