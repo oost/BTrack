@@ -32,22 +32,22 @@ target_include_directories(btrack PUBLIC
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 	$<INSTALL_INTERFACE:${PKGINCLUDEDIR}>)
 
-install(TARGETS btrack
-      EXPORT btrackTargets
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib
-      RUNTIME DESTINATION bin
-      INCLUDES DESTINATION include
-)
+# install(TARGETS btrack
+#       EXPORT btrackTargets
+#       LIBRARY DESTINATION lib
+#       ARCHIVE DESTINATION lib
+#       RUNTIME DESTINATION bin
+#       INCLUDES DESTINATION include
+# )
 
 
-install(TARGETS btrack EXPORT btrack
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+# install(TARGETS btrack EXPORT btrack
+#     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+#     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+#     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
-install(FILES btrack_config.h
-              BTrack.hh
-              CircularBuffer.h
-              OnsetDetectionFunction.h
-        DESTINATION "${PKGINCLUDEDIR}")
+# install(FILES btrack_config.h
+#               BTrack.h
+#               CircularBuffer.h
+#               OnsetDetectionFunction.h
+#         DESTINATION "${PKGINCLUDEDIR}")
