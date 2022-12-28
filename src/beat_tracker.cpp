@@ -19,7 +19,7 @@
  */
 //=======================================================================
 
-#include "BTrack.h"
+#include "beat_tracker.hpp"
 #include "samplerate.h"
 #include <algorithm>
 #include <cmath>

@@ -2,27 +2,27 @@ find_package(SampleRate CONFIG REQUIRED)
 
 if(ENABLE_FFTW)
   message("Building with FFTW")
-	# add_compile_definitions(USE_FFTW)
+	add_compile_definitions(USE_FFTW)
 	set(BTRACK_COMPILE_DEFINITIONS USE_FFTW)
   find_package(FFTW3 CONFIG REQUIRED)
   set(FFT_LIBRARY FFTW3::fftw3)
-
+  set(FFT_OPERATOR_SOURCES fft_operator_fftw.cpp)
   # add_library(btrack_fft btrack_fft_fftw.cpp)
 else() 
   message("Building with KISS FFT")
-	# add_compile_definitions(USE_KISS_FFT)
+	add_compile_definitions(USE_KISS_FFT)
 	set(BTRACK_COMPILE_DEFINITIONS USE_KISS_FFT)
   set(KISSFFT_STATIC ON)
   find_package(unofficial-kissfft CONFIG REQUIRED)
   set(FFT_LIBRARY unofficial::kissfft::kissfft)
+  set(FFT_OPERATOR_SOURCES fft_operator_kissfft.cpp)
   # add_library(btrack_fft btrack_fft_kissfft.cpp)
 endif()
-
 
 set(PKGINCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/btrack")
 message(STATUS "PKGINCLUDEDIR is ${PKGINCLUDEDIR}")
 
-add_library(btrack BTrack.cpp OnsetDetectionFunction.cpp)
+add_library(btrack beat_tracker.cpp onset_detection_function.cpp ${FFT_OPERATOR_SOURCES})
 target_link_libraries(btrack PUBLIC ${FFT_LIBRARY} SampleRate::samplerate)
 target_compile_definitions(btrack PUBLIC ${BTRACK_COMPILE_DEFINITIONS})
 

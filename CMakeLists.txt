@@ -9,6 +9,7 @@ option(ENABLE_FFTW OFF)
 
 add_subdirectory(src)
 add_subdirectory(unit-tests)
+add_subdirectory(modules-and-plug-ins)
 
 
 

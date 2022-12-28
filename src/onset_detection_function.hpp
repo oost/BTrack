@@ -22,9 +22,9 @@
 #ifndef __ONSETDETECTIONFUNCTION_H
 #define __ONSETDETECTIONFUNCTION_H
 
-#include "btrack_config.h"
-
 #include <vector>
+
+#include "fft_operator.hpp"
 
 //=======================================================================
 /** The type of onset detection function to calculate */
@@ -178,18 +178,7 @@ private:
   int windowType;                 /**< type of window used in calculations */
 
   //=======================================================================
-#ifdef USE_FFTW
-  fftw_plan p;              /**< fftw plan */
-  fftw_complex *complexIn;  /**< to hold complex fft values for input */
-  fftw_complex *complexOut; /**< to hold complex fft values for output */
-#endif
-
-#ifdef USE_KISS_FFT
-  kiss_fft_cfg cfg;     /**< Kiss FFT configuration */
-  kiss_fft_cpx *fftIn;  /**< FFT input samples, in complex form */
-  kiss_fft_cpx *fftOut; /**< FFT output samples, in complex form */
-  std::vector<std::vector<double>> complexOut;
-#endif
+  FFTOperator::Ptr fft_operator_;
 
   //=======================================================================
   bool initialised; /**< flag indicating whether buffers and FFT plans are

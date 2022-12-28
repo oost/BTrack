@@ -1,0 +1,19 @@
+{
+  "name": "python-module-btrack",
+  "version-string": "0.1.0",
+  "dependencies": [
+    {
+      "name": "vcpkg-get-python-packages",
+      "host": true,
+      "default-features": false
+    },
+    "python3",
+    "pybind11",
+    "vamp-sdk",
+    "spdlog",
+    "fftw3",
+    "audiofile",
+    "libsamplerate",
+    "kissfft"
+  ]
+}

@@ -29,19 +29,19 @@
  * whilst removing them from the beginning. This is implemented in an
  * efficient way which doesn't involve any memory allocation
  */
-class CircularBuffer {
+template <typename T> class CircularBuffer {
 public:
   /** Constructor */
   CircularBuffer() : writeIndex(0) {}
 
   /** Access the ith element in the buffer */
-  double &operator[](int i) {
+  T &operator[](int i) {
     int index = (i + writeIndex) % buffer.size();
     return buffer[index];
   }
 
   /** Add a new sample to the end of the buffer */
-  void addSampleToEnd(double v) {
+  void addSampleToEnd(T v) {
     buffer[writeIndex] = v;
     writeIndex = (writeIndex + 1) % buffer.size();
   }
@@ -53,7 +53,7 @@ public:
   }
 
 private:
-  std::vector<double> buffer;
+  std::vector<T> buffer;
   int writeIndex;
 };
 

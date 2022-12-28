@@ -2,7 +2,8 @@ python-module/build
 unit-tests/Build
 xcuserdata
 .DS_Store
-
+.venv
+build
 *.o
 *.dylib
 

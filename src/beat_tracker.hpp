@@ -1,5 +1,5 @@
 //=======================================================================
-/** @file BTrack.h
+/** @file beat_tracker.hpp
  *  @brief BTrack - a real-time beat tracker
  *  @author Adam Stark
  *  @copyright Copyright (C) 2008-2014  Queen Mary University of London
@@ -22,8 +22,8 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
-#include "CircularBuffer.h"
-#include "OnsetDetectionFunction.h"
+#include "circular_buffer.h"
+#include "onset_detection_function.hpp"
 #include <vector>
 
 #include "btrack_config.h"
@@ -196,8 +196,8 @@ private:
   //=======================================================================
   // buffers
 
-  CircularBuffer onsetDF;         /**< to hold onset detection function */
-  CircularBuffer cumulativeScore; /**< to hold cumulative score */
+  CircularBuffer<double> onsetDF; /**< to hold onset detection function */
+  CircularBuffer<double> cumulativeScore; /**< to hold cumulative score */
 
   double resampledOnsetDF[512];     /**< to hold resampled detection function */
   double acf[512];                  /**<  to hold autocorrelation function */

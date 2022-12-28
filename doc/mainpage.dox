@@ -17,7 +17,7 @@
 * 
 * Include the BTrack header file as follows:
 *
-* 		#include "BTrack.h"
+* 		#include "beat_tracker.hpp"
 *	
 * **STEP 2**
 *
