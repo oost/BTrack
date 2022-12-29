@@ -1,5 +1,6 @@
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(VAMPSDK REQUIRED vamp-sdk)
+option(ENABLE_FFTW OFF)
 
 add_library(btrackvamp SHARED BTrackVamp.cpp plugins.cpp)
 

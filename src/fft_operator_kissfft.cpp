@@ -1,45 +1,35 @@
 #include "fft_operator_kissfft.hpp"
+#include <type_traits>
 
-FFTOperator::Ptr FFTOperator::createOperator(int frameSize) {
-  return std::make_unique<FFTOperatorKissFFT>(frameSize);
+FFTOperator::Ptr FFTOperator::createOperator(int frameSize, bool backward_fft) {
+  return std::make_unique<FFTOperatorKissFFT>(frameSize, backward_fft);
 }
 
-FFTOperatorKissFFT::FFTOperatorKissFFT(int frameSize) : FFTOperator(frameSize) {
+FFTOperatorKissFFT::FFTOperatorKissFFT(int frameSize, bool backward_fft)
+    : FFTOperator(frameSize, backward_fft) {
 
-  complexOut.resize(frameSize_);
+  static_assert(std::is_same<double, kiss_fft_scalar>::value);
 
-  for (int i = 0; i < frameSize_; i++) {
-    complexOut[i].resize(2);
+  cfg_ = kiss_fft_alloc(frameSize, 0, 0, 0);
+  if (backward_fft) {
+    cfg_backward_ = kiss_fft_alloc(frameSize, 1, 0, 0);
   }
-
-  fftIn = new kiss_fft_cpx[frameSize_];
-  fftOut = new kiss_fft_cpx[frameSize_];
-  cfg = kiss_fft_alloc(frameSize, 0, 0, 0);
 }
 
 //=======================================================================
 FFTOperatorKissFFT::~FFTOperatorKissFFT() {
-  free(cfg);
-  delete[] fftIn;
-  delete[] fftOut;
-}
-
-void FFTOperatorFFTW::performFFT(double *frame, double *window) {
-  int fsize2 = (frameSize_ / 2);
-
-  for (int i = 0; i < fsize2; i++) {
-    fftIn[i].r = frame[i + fsize2] * window[i + fsize2];
-    fftIn[i].i = 0.0;
-    fftIn[i + fsize2].r = frame[i] * window[i];
-    fftIn[i + fsize2].i = 0.0;
+  free(cfg_);
+  if (backward_fft_) {
+    free(cfg_backward_);
   }
-
+}
+void FFTOperatorKissFFT::performFFT(bool backward) {
   // execute kiss fft
-  kiss_fft(cfg, fftIn, fftOut);
-
-  // store real and imaginary parts of FFT
-  for (int i = 0; i < frameSize; i++) {
-    complexOut[i][0] = fftOut[i].r;
-    complexOut[i][1] = fftOut[i].i;
+  if (backward) {
+    kiss_fft(cfg_backward_, reinterpret_cast<kiss_fft_cpx *>(output_.data()),
+             reinterpret_cast<kiss_fft_cpx *>(input_.data()));
+  } else {
+    kiss_fft(cfg_, reinterpret_cast<kiss_fft_cpx *>(input_.data()),
+             reinterpret_cast<kiss_fft_cpx *>(output_.data()));
   }
 }

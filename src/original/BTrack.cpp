@@ -19,11 +19,13 @@
  */
 //=======================================================================
 
-#include "beat_tracker.hpp"
+#include "BTrack.h"
 #include "samplerate.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+
+using namespace BTrackOriginal;
 
 //=======================================================================
 BTrack::BTrack() : odf(512, 1024, ComplexSpectralDifferenceHWR, HanningWindow) {
@@ -43,7 +45,22 @@ BTrack::BTrack(int hopSize_, int frameSize_)
 }
 
 //=======================================================================
-BTrack::~BTrack() { fft_operator_ = nullptr; }
+BTrack::~BTrack() {
+#ifdef USE_FFTW
+  // destroy fft plan
+  fftw_destroy_plan(acfForwardFFT);
+  fftw_destroy_plan(acfBackwardFFT);
+  fftw_free(complexIn);
+  fftw_free(complexOut);
+#endif
+
+#ifdef USE_KISS_FFT
+  free(cfgForwards);
+  free(cfgBackwards);
+  delete[] fftIn;
+  delete[] fftOut;
+#endif
+}
 
 //=======================================================================
 double BTrack::getBeatTimeInSeconds(long frameNumber, int hopSize, int fs) {
@@ -118,7 +135,28 @@ void BTrack::initialise(int hopSize_, int frameSize_) {
   // Set up FFT for calculating the auto-correlation function
   FFTLengthForACFCalculation = 1024;
 
-  fft_operator_ = FFTOperator::createOperator(FFTLengthForACFCalculation, true);
+#ifdef USE_FFTW
+  complexIn = (fftw_complex *)fftw_malloc(
+      sizeof(fftw_complex) *
+      FFTLengthForACFCalculation); // complex array to hold fft data
+  complexOut = (fftw_complex *)fftw_malloc(
+      sizeof(fftw_complex) *
+      FFTLengthForACFCalculation); // complex array to hold fft data
+
+  acfForwardFFT =
+      fftw_plan_dft_1d(FFTLengthForACFCalculation, complexIn, complexOut,
+                       FFTW_FORWARD, FFTW_ESTIMATE); // FFT plan initialisation
+  acfBackwardFFT =
+      fftw_plan_dft_1d(FFTLengthForACFCalculation, complexOut, complexIn,
+                       FFTW_BACKWARD, FFTW_ESTIMATE); // FFT plan initialisation
+#endif
+
+#ifdef USE_KISS_FFT
+  fftIn = new kiss_fft_cpx[FFTLengthForACFCalculation];
+  fftOut = new kiss_fft_cpx[FFTLengthForACFCalculation];
+  cfgForwards = kiss_fft_alloc(FFTLengthForACFCalculation, 0, 0, 0);
+  cfgBackwards = kiss_fft_alloc(FFTLengthForACFCalculation, 1, 0, 0);
+#endif
 }
 
 //=======================================================================
@@ -476,33 +514,73 @@ void BTrack::calculateOutputOfCombFilterBank() {
 //=======================================================================
 void BTrack::calculateBalancedACF(double *onsetDetectionFunction) {
   int onsetDetectionFunctionLength = 512;
-  FFTOperator::complex_v &input = fft_operator_->input();
-  FFTOperator::complex_v &output = fft_operator_->output();
 
+#ifdef USE_FFTW
   // copy into complex array and zero pad
   for (int i = 0; i < FFTLengthForACFCalculation; i++) {
     if (i < onsetDetectionFunctionLength) {
-      input[i] = FFTOperator::complex_t(onsetDetectionFunction[i], 0.0);
+      complexIn[i][0] = onsetDetectionFunction[i];
+      complexIn[i][1] = 0.0;
     } else {
-      input[i] = FFTOperator::complex_t(0, 0.0);
+      complexIn[i][0] = 0.0;
+      complexIn[i][1] = 0.0;
     }
   }
-  fft_operator_->performFFT();
+
+  // perform the fft
+  fftw_execute(acfForwardFFT);
 
   // multiply by complex conjugate
   for (int i = 0; i < FFTLengthForACFCalculation; i++) {
-    output[i] = FFTOperator::complex_t(std::norm(output[i]), 0);
+    complexOut[i][0] = complexOut[i][0] * complexOut[i][0] +
+                       complexOut[i][1] * complexOut[i][1];
+    complexOut[i][1] = 0.0;
   }
 
-  fft_operator_->performFFT(true);
+  // perform the ifft
+  fftw_execute(acfBackwardFFT);
+
+#endif
+
+#ifdef USE_KISS_FFT
+  // copy into complex array and zero pad
+  for (int i = 0; i < FFTLengthForACFCalculation; i++) {
+    if (i < onsetDetectionFunctionLength) {
+      fftIn[i].r = onsetDetectionFunction[i];
+      fftIn[i].i = 0.0;
+    } else {
+      fftIn[i].r = 0.0;
+      fftIn[i].i = 0.0;
+    }
+  }
+
+  // execute kiss fft
+  kiss_fft(cfgForwards, fftIn, fftOut);
+
+  // multiply by complex conjugate
+  for (int i = 0; i < FFTLengthForACFCalculation; i++) {
+    fftOut[i].r = fftOut[i].r * fftOut[i].r + fftOut[i].i * fftOut[i].i;
+    fftOut[i].i = 0.0;
+  }
+
+  // perform the ifft
+  kiss_fft(cfgBackwards, fftOut, fftIn);
+
+#endif
 
   double lag = 512;
 
   for (int i = 0; i < 512; i++) {
-
+#ifdef USE_FFTW
     // calculate absolute value of result
-    double absValue = std::abs(fft_operator_->input()[i]);
+    double absValue = sqrt(complexIn[i][0] * complexIn[i][0] +
+                           complexIn[i][1] * complexIn[i][1]);
+#endif
 
+#ifdef USE_KISS_FFT
+    // calculate absolute value of result
+    double absValue = sqrt(fftIn[i].r * fftIn[i].r + fftIn[i].i * fftIn[i].i);
+#endif
     // divide by inverse lad to deal with scale bias towards small lags
     acf[i] = absValue / lag;
 

@@ -167,9 +167,6 @@ private:
    */
   double princarg(double phaseVal);
 
-  void initialiseFFT();
-  void freeFFT();
-
   double pi; /**< pi, the constant */
 
   int frameSize;                  /**< audio framesize */
@@ -181,9 +178,6 @@ private:
   FFTOperator::Ptr fft_operator_;
 
   //=======================================================================
-  bool initialised; /**< flag indicating whether buffers and FFT plans are
-                       initialised */
-
   std::vector<double> frame;  /**< audio frame */
   std::vector<double> window; /**< window */
 

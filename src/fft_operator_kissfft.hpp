@@ -7,15 +7,13 @@
 
 class FFTOperatorKissFFT : public FFTOperator {
 public:
-  FFTOperatorKissFFT(int frameSize);
+  FFTOperatorKissFFT(int frameSize, bool backward_fft);
   virtual ~FFTOperatorKissFFT();
-  void performFFT(double *frame, double *window) override;
+  void performFFT(bool backward = false) override;
 
 private:
-  kiss_fft_cfg cfg;     /**< Kiss FFT configuration */
-  kiss_fft_cpx *fftIn;  /**< FFT input samples, in complex form */
-  kiss_fft_cpx *fftOut; /**< FFT output samples, in complex form */
-  std::vector<std::vector<double>> complexOut;
+  kiss_fft_cfg cfg_;          /**< Kiss FFT configuration */
+  kiss_fft_cfg cfg_backward_; /**< Kiss FFT configuration */
 };
 
 #endif // BTRACK__FFT_OPERATOR_KISSFFT_HPP

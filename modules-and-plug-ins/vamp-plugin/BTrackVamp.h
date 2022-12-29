@@ -7,8 +7,9 @@
 #ifndef _BTRACK_VAMP_H_
 #define _BTRACK_VAMP_H_
 
-#include "../../src/beat_tracker.hpp"
 #include <vamp-sdk/Plugin.h>
+
+#include "beat_tracker.hpp"
 
 using std::string;
 

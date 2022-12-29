@@ -5,7 +5,6 @@ import numpy as np
 import btrackpy
 
 import pydub 
-import numpy as np
 
 def read(f, normalized=False):
     """MP3 to numpy array"""

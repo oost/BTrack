@@ -26,7 +26,7 @@
 #include "onset_detection_function.hpp"
 #include <vector>
 
-#include "btrack_config.h"
+// #include "btrack_config.h"
 
 //=======================================================================
 /** The main beat tracking class and the interface to the BTrack
@@ -236,21 +236,7 @@ private:
   int FFTLengthForACFCalculation; /**< the FFT length for the auto-correlation
                                      function calculation */
 
-#ifdef USE_FFTW
-  fftw_plan acfForwardFFT;  /**< forward fftw plan for calculating
-                               auto-correlation function */
-  fftw_plan acfBackwardFFT; /**< inverse fftw plan for calculating
-                               auto-correlation function */
-  fftw_complex *complexIn;  /**< to hold complex fft values for input */
-  fftw_complex *complexOut; /**< to hold complex fft values for output */
-#endif
-
-#ifdef USE_KISS_FFT
-  kiss_fft_cfg cfgForwards;  /**< Kiss FFT configuration */
-  kiss_fft_cfg cfgBackwards; /**< Kiss FFT configuration */
-  kiss_fft_cpx *fftIn;       /**< FFT input samples, in complex form */
-  kiss_fft_cpx *fftOut;      /**< FFT output samples, in complex form */
-#endif
+  FFTOperator::Ptr fft_operator_;
 };
 
 #endif

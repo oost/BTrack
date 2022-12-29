@@ -1,42 +1,49 @@
 #include "fft_operator_fftw.hpp"
 
-FFTOperator::Ptr FFTOperator::createOperator(int frameSize) {
-  return std::make_unique<FFTOperatorFFTW>(frameSize);
+FFTOperator::Ptr FFTOperator::createOperator(int frameSize, bool backward_fft) {
+  return std::make_unique<FFTOperatorFFTW>(frameSize, backward_fft);
 }
 
-FFTOperatorFFTW::FFTOperatorFFTW(int frameSize) : FFTOperator(frameSize) {
+FFTOperatorFFTW::FFTOperatorFFTW(int frameSize, bool backward_fft)
+    : FFTOperator(frameSize, backward_fft) {
 
-  complexIn = (fftw_complex *)fftw_malloc(
-      sizeof(fftw_complex) * frameSize_); // complex array to hold fft data
-  output_.resize(frameSize_);
-  // complexOut = (fftw_complex *)fftw_malloc(
-  //     sizeof(fftw_complex) * frameSize_); // complex array to hold fft data
-  p = fftw_plan_dft_1d(frameSize_, complexIn,
-                       reinterpret_cast<fftw_complex *>(output_.data()),
-                       FFTW_FORWARD, FFTW_ESTIMATE); // FFT
-                                                     // plan
-                                                     // initialisation
+  // FFT plan initialization
+  p_ = fftw_plan_dft_1d(frameSize_,
+                        reinterpret_cast<fftw_complex *>(input_.data()),
+                        reinterpret_cast<fftw_complex *>(output_.data()),
+                        FFTW_FORWARD, FFTW_ESTIMATE);
+  if (backward_fft) {
+    p_backward_ = fftw_plan_dft_1d(
+        frameSize_, reinterpret_cast<fftw_complex *>(output_.data()),
+        reinterpret_cast<fftw_complex *>(input_.data()), FFTW_BACKWARD,
+        FFTW_ESTIMATE);
+  }
 }
 
 //=======================================================================
 FFTOperatorFFTW::~FFTOperatorFFTW() {
-  fftw_destroy_plan(p);
-  fftw_free(complexIn);
+  fftw_destroy_plan(p_);
+  if (backward_fft_) {
+    fftw_destroy_plan(p_backward_);
+  }
 }
 
-void FFTOperatorFFTW::performFFT(const std::vector<double> &frame,
-                                 const std::vector<double> &window) {
-  int fsize2 = (frameSize_ / 2);
+void FFTOperatorFFTW::performFFT(bool backward) {
+  // int fsize2 = (frameSize_ / 2);
 
   // window frame and copy to complex array, swapping the first and second half
   // of the signal
-  for (int i = 0; i < fsize2; i++) {
-    complexIn[i][0] = frame[i + fsize2] * window[i + fsize2];
-    complexIn[i][1] = 0.0;
-    complexIn[i + fsize2][0] = frame[i] * window[i];
-    complexIn[i + fsize2][1] = 0.0;
-  }
+  // for (int i = 0; i < fsize2; i++) {
+  //   complexIn_[i][0] = frame[i + fsize2] * window[i + fsize2];
+  //   complexIn_[i][1] = 0.0;
+  //   complexIn_[i + fsize2][0] = frame[i] * window[i];
+  //   complexIn_[i + fsize2][1] = 0.0;
+  // }
 
   // perform the fft
-  fftw_execute(p);
+  if (backward) {
+    fftw_execute(p_backward_);
+  } else {
+    fftw_execute(p_);
+  }
 }

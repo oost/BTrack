@@ -6,15 +6,13 @@
 
 class FFTOperatorFFTW : public FFTOperator {
 public:
-  FFTOperatorFFTW(int frameSize);
+  FFTOperatorFFTW(int frameSize, bool backward_fft);
   virtual ~FFTOperatorFFTW();
-  void performFFT(const std::vector<double> &frame,
-                  const std::vector<double> &window) override;
+  void performFFT(bool backward = false) override;
 
 private:
-  fftw_plan p;              /**< fftw plan */
-  fftw_complex *complexIn;  /**< to hold complex fft values for input */
-  fftw_complex *complexOut; /**< to hold complex fft values for output */
+  fftw_plan p_;          /**< fftw plan */
+  fftw_plan p_backward_; /**< fftw plan */
 };
 
 #endif // BTRACK__FFT_OPERATOR_FFTW_HPP
