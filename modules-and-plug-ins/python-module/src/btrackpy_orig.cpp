@@ -120,7 +120,7 @@ btrack_orig_trackBeats(py::array_t<double> input, int hopSize, int frameSize) {
 }
 
 //=======================================================================
-template <class O>
+template <class ODF>
 py::array_t<double, py::array::c_style>
 btrack_orig_calculateOnsetDF(py::array_t<double> input, int hopSize,
                              int frameSize) {
@@ -137,7 +137,7 @@ btrack_orig_calculateOnsetDF(py::array_t<double> input, int hopSize,
   int numframes = signal_length / hopSize;
   double buffer[hopSize]; // buffer to hold one hopsize worth of audio samples
 
-  O onset(hopSize, frameSize, df_type, 1);
+  ODF onset{hopSize, frameSize, df_type, 1};
 
   auto result = py::array_t<double>(numframes);
   py::buffer_info result_buffer = result.request();

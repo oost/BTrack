@@ -24,6 +24,7 @@ catch_discover_tests(test_fft_operator)
 add_executable(test_btrack test_btrack.cpp)
 target_link_libraries(test_btrack PUBLIC btrack Catch2::Catch2 Catch2::Catch2WithMain)
 target_compile_definitions(test_btrack PUBLIC ${btrack_compile_definition})
+target_include_directories(test_btrack PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../src)
 catch_discover_tests(test_btrack)
 
 

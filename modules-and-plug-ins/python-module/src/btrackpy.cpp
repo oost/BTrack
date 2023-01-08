@@ -43,7 +43,8 @@ btrack_trackBeats(py::array_t<double> input, int hopSize, int frameSize) {
   ////////// BEGIN PROCESS ///////////////////
 
   int numframes = signal_length / hopSize;
-  double buffer[hopSize]; // buffer to hold one hopsize worth of audio samples
+  std::vector<double> buffer(
+      hopSize); // buffer to hold one hopsize worth of audio samples
 
   // get number of audio frames, given the hop size and signal length
 
@@ -91,11 +92,14 @@ btrack_calculateOnsetDF(py::array_t<double> input, int hopSize, int frameSize) {
   long signal_length = input_buffer.size;
 
   ////////// BEGIN PROCESS ///////////////////
-  int df_type = 6;
+  DetectionFunctionType df_type =
+      DetectionFunctionType::ComplexSpectralDifferenceHWR;
   int numframes = signal_length / hopSize;
-  double buffer[hopSize]; // buffer to hold one hopsize worth of audio samples
+  std::vector<double> buffer(
+      hopSize); // buffer to hold one hopsize worth of audio samples
 
-  OnsetDetectionFunction onset(hopSize, frameSize, df_type, 1);
+  OnsetDetectionFunction onset(hopSize, frameSize, df_type,
+                               WindowType::HanningWindow);
 
   auto result = py::array_t<double>(numframes);
   py::buffer_info result_buffer = result.request();

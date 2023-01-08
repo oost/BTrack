@@ -1,9 +1,10 @@
-#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_all.hpp>
 #include <utility>
 
 #include <math.h>
 
 #include "beat_tracker.hpp"
+#include "utils.hpp"
 
 TEST_CASE("BTrack ", "[BTrack]") {
   SECTION("Constructors") {
@@ -28,6 +29,25 @@ TEST_CASE("BTrack ", "[BTrack]") {
       REQUIRE(b.getHopSize() == 256);
     }
   }
+
+  SECTION("Utils") {
+    std::vector<double> v{1, 2, 3};
+
+    SECTION("normalizeArray") {
+      using Catch::Matchers::WithinAbs;
+      normalizeArray(v);
+      REQUIRE_THAT(v[0], WithinAbs(1. / 6, 0.00001));
+      REQUIRE_THAT(v[1], WithinAbs(2. / 6, 0.00001));
+      REQUIRE_THAT(v[2], WithinAbs(3. / 6, 0.00001));
+    }
+
+    SECTION("calculateMeanOfArray") {
+      using Catch::Matchers::WithinAbs;
+      double m = calculateMeanOfArray(v.begin(), v.end());
+      REQUIRE_THAT(m, WithinAbs(2., 0.00001));
+    }
+  }
+
   SECTION("processingSimpleValues") {
 
     //======================================================================

@@ -10,7 +10,7 @@ if(ENABLE_FFTW)
   set(FFT_LIBRARY FFTW3::fftw3)
 
   set(BTRACK_INCLUDE_DIRECTORIES "")
-  set(FFT_OPERATOR_SOURCES fft_operator_fftw.cpp)
+  set(FFT_OPERATOR_SOURCES transformers/fft/fft_operator_fftw.cpp)
   # add_library(btrack_fft btrack_fft_fftw.cpp)
 else() 
 
@@ -25,7 +25,7 @@ else()
   # set(FFT_LIBRARY unofficial::kissfft::kissfft)
   set(BTRACK_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_LIST_DIR}/../libs/kiss_fft130)
   target_include_directories(btrack PRIVATE ${BTRACK_INCLUDE_DIRECTORIES})
-  set(FFT_OPERATOR_SOURCES fft_operator_kissfft.cpp ${CMAKE_CURRENT_LIST_DIR}/../libs/kiss_fft130/kiss_fft.c)
+  set(FFT_OPERATOR_SOURCES transformers/fft/fft_operator_kissfft.cpp ${CMAKE_CURRENT_LIST_DIR}/../libs/kiss_fft130/kiss_fft.c)
 
   # add_library(btrack_fft btrack_fft_kissfft.cpp)
 endif()
