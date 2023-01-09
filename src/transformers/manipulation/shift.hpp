@@ -24,12 +24,13 @@ protected:
     }
 
     int lag = this->inputBuffer_->size();
-    for (int i = 0; i < this->outputBuffer_->size() - lag; i++) {
+    int samplesToKeep = this->outputBuffer_->size() - lag;
+    for (int i = 0; i < samplesToKeep; i++) {
       (*this->outputBuffer_)[i] = (*this->outputBuffer_)[i + lag];
     }
 
     for (int i = 0; i < lag; i++) {
-      (*this->outputBuffer_)[i] = (*this->inputBuffer_)[i];
+      (*this->outputBuffer_)[samplesToKeep + i] = (*this->inputBuffer_)[i];
     }
   };
 };

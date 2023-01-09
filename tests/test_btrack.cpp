@@ -6,6 +6,9 @@
 #include "beat_tracker.hpp"
 #include "utils.hpp"
 
+using Catch::Matchers::WithinAbs;
+using Catch::Matchers::WithinULP;
+
 TEST_CASE("BTrack ", "[BTrack]") {
   SECTION("Constructors") {
     //======================================================================
@@ -34,7 +37,6 @@ TEST_CASE("BTrack ", "[BTrack]") {
     std::vector<double> v{1, 2, 3};
 
     SECTION("normalizeArray") {
-      using Catch::Matchers::WithinAbs;
       normalizeArray(v);
       REQUIRE_THAT(v[0], WithinAbs(1. / 6, 0.00001));
       REQUIRE_THAT(v[1], WithinAbs(2. / 6, 0.00001));
@@ -42,9 +44,35 @@ TEST_CASE("BTrack ", "[BTrack]") {
     }
 
     SECTION("calculateMeanOfArray") {
-      using Catch::Matchers::WithinAbs;
       double m = calculateMeanOfArray(v.begin(), v.end());
       REQUIRE_THAT(m, WithinAbs(2., 0.00001));
+    }
+  }
+
+  SECTION("Onset detection function") {
+    int hopSize = 512;
+    int frameSize = 1024;
+    OnsetDetectionFunction odf(hopSize, frameSize);
+
+    SECTION("Constant") {
+      std::vector<double> data(hopSize, 1.0);
+      for (int i = 0; i < hopSize; i++) {
+      }
+      double res = odf.calculateOnsetDetectionFunctionSample(data);
+      REQUIRE_THAT(res, WithinAbs(2707, 1));
+      res = odf.calculateOnsetDetectionFunctionSample(data);
+      REQUIRE_THAT(res, WithinAbs(985, 1));
+    }
+
+    SECTION("Linear") {
+      std::vector<double> data(hopSize, 1.0);
+      for (int i = 0; i < hopSize; i++) {
+        data[i] = i;
+      }
+      double res = odf.calculateOnsetDetectionFunctionSample(data);
+      REQUIRE_THAT(res, WithinAbs(158214, 1));
+      res = odf.calculateOnsetDetectionFunctionSample(data);
+      REQUIRE_THAT(res, WithinAbs(1296727, 1));
     }
   }
 
@@ -120,7 +148,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval < 100);
+      REQUIRE(maxInterval == 68);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
@@ -160,7 +188,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval < 100);
+      REQUIRE(maxInterval == 62);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
@@ -205,7 +233,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
         }
       }
 
-      REQUIRE(maxInterval < 50);
+      REQUIRE(maxInterval == 49);
 
       // check that the number of correct beats is larger than 99%
       // of the total number of beats

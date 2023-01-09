@@ -9,6 +9,7 @@
 #include "transformers/transformer.hpp"
 
 namespace transformers {
+
 template <typename T> class SwapTransformer : public BufferedTransformer<T, T> {
 public:
   SwapTransformer(std::size_t spanSize) : BufferedTransformer<T, T>(spanSize) {
@@ -26,8 +27,8 @@ protected:
     int half_size = (this->inputBuffer_->size() / 2);
 
     for (int i = 0; i < half_size; i++) {
-      (*this->outputBuffer_)[i] = (*this->intputBuffer_)[half_size + i];
-      (*this->outputBuffer_)[i + half_size] = (*this->intputBuffer_)[i];
+      (*this->outputBuffer_)[i] = (*this->inputBuffer_)[half_size + i];
+      (*this->outputBuffer_)[i + half_size] = (*this->inputBuffer_)[i];
     }
   };
 };

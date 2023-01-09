@@ -2,8 +2,11 @@
 #include <utility>
 
 #include <math.h>
+#include <vector>
 
 #include "BTrack.h"
+using Catch::Matchers::WithinAbs;
+using Catch::Matchers::WithinULP;
 
 using namespace BTrackOriginal;
 
@@ -30,6 +33,34 @@ TEST_CASE("BTrack ", "[BTrack]") {
       REQUIRE(b.getHopSize() == 256);
     }
   }
+
+  SECTION("Onset detection function") {
+    int hopSize = 512;
+    int frameSize = 1024;
+    OnsetDetectionFunction odf(hopSize, frameSize);
+
+    SECTION("Constant") {
+      std::vector<double> data(hopSize, 1.0);
+      for (int i = 0; i < hopSize; i++) {
+      }
+      double res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      REQUIRE_THAT(res, WithinAbs(2707, 1));
+      res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      REQUIRE_THAT(res, WithinAbs(985, 1));
+    }
+
+    SECTION("Linear") {
+      std::vector<double> data(hopSize, 1.0);
+      for (int i = 0; i < hopSize; i++) {
+        data[i] = i;
+      }
+      double res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      REQUIRE_THAT(res, WithinAbs(158214, 1));
+      res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      REQUIRE_THAT(res, WithinAbs(1296727, 1));
+    }
+  }
+
   SECTION("processingSimpleValues") {
 
     //======================================================================
@@ -62,7 +93,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval < 100);
+      REQUIRE(maxInterval == 46);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
@@ -102,7 +133,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval < 100);
+      REQUIRE(maxInterval == 68);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
@@ -142,7 +173,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval < 100);
+      REQUIRE(maxInterval == 62);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
@@ -189,7 +220,9 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval < 100);
+      REQUIRE(maxInterval == 49);
+
+      REQUIRE(std::abs(static_cast<double>(numBeats) / correct - 1) < 0.01);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));

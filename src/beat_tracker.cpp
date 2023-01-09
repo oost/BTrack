@@ -107,13 +107,21 @@ BTrack::BTrack(int hopSize, int frameSize, int sampling_rate)
   // Set up FFT for calculating the auto-correlation function
   FFTLengthForACFCalculation_ = 1024;
 
-  // fft_operator_ =
-  //     FFTOperator::createOperator(FFTLengthForACFCalculation_, true);
+  fftInputBuffer_ = std::make_shared<DataBuffer<std::complex<double>>>(
+      FFTLengthForACFCalculation_);
+  fftOperator_ =
+      FFTOperator::createOperator(FFTLengthForACFCalculation_, false);
+  fftOperator_->setInput(fftInputBuffer_);
+
+  fftOperatorBackwards_ =
+      FFTOperator::createOperator(FFTLengthForACFCalculation_, true);
+  fftOperatorBackwards_->setInput(fftOperator_->output());
 }
 
 //=======================================================================
 BTrack::~BTrack() {
-  // fft_operator_ = nullptr;
+  fftOperator_ = nullptr;
+  fftOperatorBackwards_ = nullptr;
 }
 
 //=======================================================================
@@ -495,43 +503,46 @@ void BTrack::calculateOutputOfCombFilterBank() {
 void BTrack::calculateBalancedACF(
     const std::vector<double> &onsetDetectionFunction) {
   int onsetDetectionFunctionLength = 512;
-  // FFTOperator::complex_v &input = fft_operator_->input();
-  // FFTOperator::complex_v &output = fft_operator_->output();
 
-  // // copy into complex array and zero pad
-  // for (int i = 0; i < FFTLengthForACFCalculation_; i++) {
-  //   if (i < onsetDetectionFunctionLength) {
-  //     input[i] = FFTOperator::complex_t(onsetDetectionFunction[i], 0.0);
-  //   } else {
-  //     input[i] = FFTOperator::complex_t(0, 0.0);
-  //   }
-  // }
-  // fft_operator_->performFFT();
+  ComplexDataBuffer::Ptr output = fftOperator_->outputData();
 
-  // // multiply by complex conjugate
-  // for (int i = 0; i < FFTLengthForACFCalculation_; i++) {
-  //   output[i] = FFTOperator::complex_t(std::norm(output[i]), 0);
-  // }
+  // copy into complex array and zero pad
+  for (int i = 0; i < FFTLengthForACFCalculation_; i++) {
+    if (i < onsetDetectionFunctionLength) {
+      (*fftInputBuffer_)[i] =
+          FFTOperator::complex_t(onsetDetectionFunction[i], 0.0);
+    } else {
+      (*fftInputBuffer_)[i] = FFTOperator::complex_t(0, 0.0);
+    }
+  }
+  fftOperator_->execute();
 
-  // fft_operator_->performFFT(true);
+  // multiply by complex conjugate
+  for (int i = 0; i < FFTLengthForACFCalculation_; i++) {
+    (*output)[i] = std::complex<double>(std::norm((*output)[i]), 0);
+  }
 
-  // double lag = 512;
+  fftOperatorBackwards_->execute();
 
-  // for (int i = 0; i < 512; i++) {
+  ComplexDataBuffer::Ptr backwardOutput = fftOperatorBackwards_->outputData();
 
-  //   // calculate absolute value of result
-  //   double absValue = std::abs(fft_operator_->input()[i]);
+  double lag = 512;
 
-  //   // divide by inverse lad to deal with scale bias towards small lags
-  //   acf_[i] = absValue / lag;
+  for (int i = 0; i < 512; i++) {
 
-  //   // this division by 1024 is technically unnecessary but it ensures the
-  //   // algorithm produces exactly the same ACF output as the old time domain
-  //   // implementation. The time difference is minimal so I decided to keep it
-  //   acf_[i] = acf_[i] / 1024.;
+    // calculate absolute value of result
+    double absValue = std::abs((*backwardOutput)[i]);
 
-  //   lag = lag - 1.;
-  // }
+    // divide by inverse lad to deal with scale bias towards small lags
+    acf_[i] = absValue / lag;
+
+    // this division by 1024 is technically unnecessary but it ensures the
+    // algorithm produces exactly the same ACF output as the old time domain
+    // implementation. The time difference is minimal so I decided to keep it
+    acf_[i] = acf_[i] / 1024.;
+
+    lag = lag - 1.;
+  }
 }
 
 //=======================================================================

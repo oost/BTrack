@@ -24,7 +24,12 @@
 
 #include "circular_buffer.h"
 #include "onset_detection_function.hpp"
+#include "transformers/fft_operator.hpp"
 #include <vector>
+
+using transformers::ComplexDataBuffer;
+using transformers::DataBuffer;
+using transformers::FFTOperator;
 
 // #include "btrack_config.h"
 
@@ -214,6 +219,9 @@ private:
                         */
   int FFTLengthForACFCalculation_; /**< the FFT length for the auto-correlation
                                      function calculation */
+  FFTOperator::Ptr fftOperator_;
+  FFTOperator::Ptr fftOperatorBackwards_;
+  ComplexDataBuffer::Ptr fftInputBuffer_;
 
   int sampling_rate_;
 };

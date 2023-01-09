@@ -34,6 +34,7 @@
 using transformers::FFTOperator;
 using transformers::MapTransformer;
 using transformers::ShiftTransformer;
+using transformers::SwapTransformer;
 using transformers::Transformer;
 
 //=======================================================================
@@ -63,10 +64,14 @@ OnsetDetectionFunction::OnsetDetectionFunction(
   Transformer::Ptr window = createWindowTransformer(windowType, frameSize);
   shifter->addSink(window);
 
+  Transformer::Ptr swapper =
+      std::make_shared<SwapTransformer<double>>(frameSize);
+  window->addSink(swapper);
+
   Transformer::Ptr mapper =
       std::make_shared<MapTransformer<double, std::complex<double>>>(
           frameSize, [](double v) { return std::complex<double>(v, 0); });
-  window->addSink(mapper);
+  swapper->addSink(mapper);
 
   FFTOperator::Ptr fft = FFTOperator::createOperator(frameSize, false);
   mapper->addSink(std::static_pointer_cast<Transformer>(fft));
