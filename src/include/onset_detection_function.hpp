@@ -43,31 +43,31 @@ public:
 
   /** Constructor that defaults the onset detection function type to
    * ComplexSpectralDifferenceHWR and the window type to HanningWindow
-   * @param hopSize the hop size in audio samples
-   * @param frameSize the frame size in audio samples
+   * @param hop_size the hop size in audio samples
+   * @param frame_size the frame size in audio samples
    */
-  OnsetDetectionFunction(int hopSize, int frameSize);
+  OnsetDetectionFunction(int hop_size, int frame_size);
 
   /** Constructor
-   * @param hopSize the hop size in audio samples
-   * @param frameSize the frame size in audio samples
-   * @param onsetDetectionFunctionType the type of onset detection function to
-   * use - (see OnsetDetectionFunctionType)
-   * @param windowType the type of window to use (see WindowType)
+   * @param hop_size the hop size in audio samples
+   * @param frame_size the frame size in audio samples
+   * @param onset_detection_function_type the type of onset detection function
+   * to use - (see Onset_detection_function_type)
+   * @param window_type the type of window to use (see WindowType)
    */
-  OnsetDetectionFunction(int hopSize, int frameSize,
-                         DetectionFunctionType onsetDetectionFunctionType,
-                         WindowType windowType);
+  OnsetDetectionFunction(int hop_size, int frame_size,
+                         DetectionFunctionType onset_detection_function_type,
+                         WindowType window_type);
 
   /** Constructor (for backward compatibility)
-   * @param hopSize the hop size in audio samples
-   * @param frameSize the frame size in audio samples
-   * @param onsetDetectionFunctionType the type of onset detection function to
-   * use - (see OnsetDetectionFunctionType)
-   * @param windowType the type of window to use (see WindowType)
+   * @param hop_size the hop size in audio samples
+   * @param frame_size the frame size in audio samples
+   * @param onset_detection_function_type the type of onset detection function
+   * to use - (see Onset_detection_function_type)
+   * @param window_type the type of window to use (see WindowType)
    */
-  OnsetDetectionFunction(int hopSize, int frameSize,
-                         int onsetDetectionFunctionType, int windowType);
+  OnsetDetectionFunction(int hop_size, int frame_size,
+                         int onset_detection_function_type, int window_type);
 
   /** Destructor */
   ~OnsetDetectionFunction();
@@ -77,12 +77,12 @@ public:
    * processed
    * @returns the onset detection function sample
    */
-  double calculateOnsetDetectionFunctionSample(std::vector<double> &buffer);
-  double calculateOnsetDetectionFunctionSample(double *buffer);
+  double calculate_onset_detection_function_sample(std::vector<double> &buffer);
+  double calculate_onset_detection_function_sample(double *buffer);
 
 private:
-  int frameSize_; /**< audio framesize */
-  int hopSize_;   /**< audio hopsize */
+  int frame_size_; /**< audio frame_size */
+  int hop_size_;   /**< audio hop_size */
 
   //=======================================================================
   TransformerPipeline<double>::Ptr pipeline_;

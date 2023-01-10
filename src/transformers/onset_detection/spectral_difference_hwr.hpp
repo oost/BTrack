@@ -13,9 +13,9 @@ namespace transformers {
 
 class SpectralDifferenceHWR : public DetectionFunction<std::complex<double>> {
 public:
-  SpectralDifferenceHWR(std::size_t inputSize)
-      : DetectionFunction(), magSpec_(inputSize, 0.0),
-        prevMagSpec_(inputSize, 0.0) {}
+  SpectralDifferenceHWR(std::size_t input_size)
+      : DetectionFunction(), magSpec_(input_size, 0.0),
+        prevMagSpec_(input_size, 0.0) {}
 
 protected:
   void process() override {
@@ -25,7 +25,7 @@ protected:
     // std::transform(
     //     input.begin(), input.end(), magSpec_.begin(),
     //     [](std::complex<double> a) -> double { return std::abs(a); });
-    std::transform(inputBuffer_->data().begin(), inputBuffer_->data().end(),
+    std::transform(input_buffer_->data().begin(), input_buffer_->data().end(),
                    magSpec_.begin(), std::abs<double>);
     // // compute first (N/2)+1 mag values
     // for (int i = 0; i < (frameSize_ / 2) + 1; i++) {
@@ -38,7 +38,7 @@ protected:
 
     sum = 0; // initialise sum to zero
 
-    for (int i = 0; i < inputBuffer_->size(); i++) {
+    for (int i = 0; i < input_buffer_->size(); i++) {
       // calculate difference
       diff = magSpec_[i] - prevMagSpec_[i];
 
@@ -53,7 +53,7 @@ protected:
       prevMagSpec_[i] = magSpec_[i];
     }
 
-    (*outputBuffer_)[0] = sum;
+    (*output_buffer_)[0] = sum;
   }
 
   std::vector<double> magSpec_;

@@ -20,15 +20,15 @@ public:
 
 protected:
   void process() override {
-    if (this->inputBuffer_->size() != this->outputBuffer_->size()) {
+    if (this->input_buffer_->size() != this->output_buffer_->size()) {
       throw std::range_error("Frame size should be even");
     }
 
-    int half_size = (this->inputBuffer_->size() / 2);
+    int half_size = (this->input_buffer_->size() / 2);
 
     for (int i = 0; i < half_size; i++) {
-      (*this->outputBuffer_)[i] = (*this->inputBuffer_)[half_size + i];
-      (*this->outputBuffer_)[i + half_size] = (*this->inputBuffer_)[i];
+      (*this->output_buffer_)[i] = (*this->input_buffer_)[half_size + i];
+      (*this->output_buffer_)[i + half_size] = (*this->input_buffer_)[i];
     }
   };
 };

@@ -154,7 +154,7 @@ btrack_orig_calculateOnsetDF(py::array_t<double> input, int hopSize,
       buffer[n] = ptr_input[(i * hopSize) + n];
     }
 
-    ptr_output[i] = onset.calculateOnsetDetectionFunctionSample(buffer);
+    ptr_output[i] = onset.calculate_onset_detection_function_sample(buffer);
   }
   return result;
 }

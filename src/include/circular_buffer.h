@@ -32,29 +32,29 @@
 template <typename T> class CircularBuffer {
 public:
   /** Constructor */
-  CircularBuffer() : writeIndex(0) {}
+  CircularBuffer() : write_index_(0) {}
 
   /** Access the ith element in the buffer */
   T &operator[](int i) {
-    int index = (i + writeIndex) % buffer.size();
-    return buffer[index];
+    int index = (i + write_index_) % buffer_.size();
+    return buffer_[index];
   }
 
   /** Add a new sample to the end of the buffer */
   void addSampleToEnd(T v) {
-    buffer[writeIndex] = v;
-    writeIndex = (writeIndex + 1) % buffer.size();
+    buffer_[write_index_] = v;
+    write_index_ = (write_index_ + 1) % buffer_.size();
   }
 
   /** Resize the buffer */
   void resize(int size) {
-    buffer.resize(size);
-    writeIndex = 0;
+    buffer_.resize(size);
+    write_index_ = 0;
   }
 
 private:
-  std::vector<T> buffer;
-  int writeIndex;
+  std::vector<T> buffer_;
+  int write_index_;
 };
 
 #endif /* CircularBuffer_hpp */

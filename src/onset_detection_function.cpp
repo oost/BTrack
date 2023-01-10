@@ -38,72 +38,73 @@ using transformers::SwapTransformer;
 using transformers::Transformer;
 
 //=======================================================================
-OnsetDetectionFunction::OnsetDetectionFunction(int hopSize, int frameSize)
+OnsetDetectionFunction::OnsetDetectionFunction(int hop_size, int frame_size)
     : OnsetDetectionFunction{
-          hopSize, frameSize,
+          hop_size, frame_size,
           DetectionFunctionType::ComplexSpectralDifferenceHWR,
           WindowType::HanningWindow} {}
 
 //=======================================================================
 OnsetDetectionFunction::OnsetDetectionFunction(
-    int hopSize, int frameSize,
-    DetectionFunctionType onsetDetectionFunctionType, WindowType windowType) {
+    int hop_size, int frame_size,
+    DetectionFunctionType onset_detection_function_type,
+    WindowType window_type) {
 
-  hopSize_ = hopSize;     // set hopsize
-  frameSize_ = frameSize; // set framesize
+  hop_size_ = hop_size;     // set hop_size
+  frame_size_ = frame_size; // set frame_size
 
-  // buffer_ = std::make_shared<RealDataBuffer>(hopSize);
+  // buffer_ = std::make_shared<RealDataBuffer>(hop_size);
 
-  pipeline_ = std::make_shared<TransformerPipeline<double>>(hopSize);
-  buffer_ = pipeline_->inputBuffer();
+  pipeline_ = std::make_shared<TransformerPipeline<double>>(hop_size);
+  buffer_ = pipeline_->input_buffer();
 
   Transformer::Ptr shifter =
-      std::make_shared<ShiftTransformer<double>>(frameSize);
-  pipeline_->setInitialTransform(shifter);
+      std::make_shared<ShiftTransformer<double>>(frame_size);
+  pipeline_->set_initial_transform(shifter);
 
-  Transformer::Ptr window = createWindowTransformer(windowType, frameSize);
-  shifter->addSink(window);
+  Transformer::Ptr window = createWindowTransformer(window_type, frame_size);
+  shifter->add_sink(window);
 
   Transformer::Ptr swapper =
-      std::make_shared<SwapTransformer<double>>(frameSize);
-  window->addSink(swapper);
+      std::make_shared<SwapTransformer<double>>(frame_size);
+  window->add_sink(swapper);
 
   Transformer::Ptr mapper =
       std::make_shared<MapTransformer<double, std::complex<double>>>(
-          frameSize, [](double v) { return std::complex<double>(v, 0); });
-  swapper->addSink(mapper);
+          frame_size, [](double v) { return std::complex<double>(v, 0); });
+  swapper->add_sink(mapper);
 
-  FFTOperator::Ptr fft = FFTOperator::createOperator(frameSize, false);
-  mapper->addSink(std::static_pointer_cast<Transformer>(fft));
+  FFTOperator::Ptr fft = FFTOperator::create_operator(frame_size, false);
+  mapper->add_sink(std::static_pointer_cast<Transformer>(fft));
 
   Transformer::Ptr odf =
-      createDetectionFunction(onsetDetectionFunctionType, frameSize);
-  fft->addSink(odf);
+      create_detection_function(onset_detection_function_type, frame_size);
+  fft->add_sink(odf);
 
-  pipeline_->setFinalTransform(odf);
+  pipeline_->set_final_transform(odf);
 }
 
 //=======================================================================
-OnsetDetectionFunction::OnsetDetectionFunction(int hopSize, int frameSize,
-                                               int onsetDetectionFunctionType,
-                                               int windowType)
+OnsetDetectionFunction::OnsetDetectionFunction(
+    int hop_size, int frame_size, int onset_detection_function_type,
+    int window_type)
     : OnsetDetectionFunction{
-          hopSize, frameSize,
-          static_cast<DetectionFunctionType>(onsetDetectionFunctionType),
-          static_cast<WindowType>(windowType)} {}
+          hop_size, frame_size,
+          static_cast<DetectionFunctionType>(onset_detection_function_type),
+          static_cast<WindowType>(window_type)} {}
 
 //=======================================================================
 OnsetDetectionFunction::~OnsetDetectionFunction() {}
 
 //=======================================================================
 
-double
-OnsetDetectionFunction::calculateOnsetDetectionFunctionSample(double *buffer) {
-  std::vector<double> buf_new(buffer, buffer + hopSize_);
-  return calculateOnsetDetectionFunctionSample(buf_new);
+double OnsetDetectionFunction::calculate_onset_detection_function_sample(
+    double *buffer) {
+  std::vector<double> buf_new(buffer, buffer + hop_size_);
+  return calculate_onset_detection_function_sample(buf_new);
 }
 
-double OnsetDetectionFunction::calculateOnsetDetectionFunctionSample(
+double OnsetDetectionFunction::calculate_onset_detection_function_sample(
     std::vector<double> &input) {
 
   std::copy(input.begin(), input.end(), buffer_->data().begin());

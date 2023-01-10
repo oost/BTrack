@@ -13,10 +13,10 @@ namespace transformers {
 
 class PhaseDeviation : public DetectionFunction<std::complex<double>> {
 public:
-  PhaseDeviation(std::size_t inputSize)
-      : DetectionFunction(), magSpec_(inputSize, 0.0),
-        prevMagSpec_(inputSize, 0.0), phase_(inputSize, 0.0),
-        prevPhase_(inputSize, 0.0), prevPhase2_(inputSize, 0.0) {}
+  PhaseDeviation(std::size_t input_size)
+      : DetectionFunction(), magSpec_(input_size, 0.0),
+        prevMagSpec_(input_size, 0.0), phase_(input_size, 0.0),
+        prevPhase_(input_size, 0.0), prevPhase2_(input_size, 0.0) {}
 
 protected:
   void process() override {
@@ -27,13 +27,13 @@ protected:
     sum = 0; // initialise sum to zero
 
     // compute phase values from fft output and sum deviations
-    for (int i = 0; i < inputBuffer_->size(); i++) {
+    for (int i = 0; i < input_buffer_->size(); i++) {
       // calculate phase value
       // phase[i] = atan2(fft_operator_->output()[i].imag(),
       //                  fft_operator_->output()[i].real());
-      phase_[i] = std::arg((*inputBuffer_)[i]);
+      phase_[i] = std::arg((*input_buffer_)[i]);
       // calculate magnitude value
-      magSpec_[i] = std::abs((*inputBuffer_)[i]);
+      magSpec_[i] = std::abs((*input_buffer_)[i]);
 
       // if bin is not just a low energy bin then examine phase deviation
       if (magSpec_[i] > 0.1) {
@@ -55,7 +55,7 @@ protected:
       prevPhase_[i] = phase_[i];
     }
 
-    (*outputBuffer_)[0] = sum;
+    (*output_buffer_)[0] = sum;
   }
 
   std::vector<double> magSpec_;

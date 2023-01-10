@@ -180,8 +180,8 @@ void OnsetDetectionFunction::setOnsetDetectionFunctionType(
 }
 
 //=======================================================================
-double
-OnsetDetectionFunction::calculateOnsetDetectionFunctionSample(double *buffer) {
+double OnsetDetectionFunction::calculate_onset_detection_function_sample(
+    double *buffer) {
   double odfSample;
 
   // shift audio samples back in frame by hop size

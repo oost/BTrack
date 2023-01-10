@@ -24,7 +24,7 @@ public:
   size_t size() const override { return data_.size(); };
 
   std::vector<T> &data() { return data_; }
-  T *rawData() { return data_.data(); }
+  T *raw_data() { return data_.data(); }
   // audo begin() { return data_.begin(); }
   // audo end() { return data_.end(); }
 

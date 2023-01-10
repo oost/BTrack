@@ -19,18 +19,18 @@ public:
 protected:
   void process() override {
 
-    if (this->inputBuffer_->size() > this->outputBuffer_->size()) {
+    if (this->input_buffer_->size() > this->output_buffer_->size()) {
       throw std::range_error("Frame size should be even");
     }
 
-    int lag = this->inputBuffer_->size();
-    int samplesToKeep = this->outputBuffer_->size() - lag;
+    int lag = this->input_buffer_->size();
+    int samplesToKeep = this->output_buffer_->size() - lag;
     for (int i = 0; i < samplesToKeep; i++) {
-      (*this->outputBuffer_)[i] = (*this->outputBuffer_)[i + lag];
+      (*this->output_buffer_)[i] = (*this->output_buffer_)[i + lag];
     }
 
     for (int i = 0; i < lag; i++) {
-      (*this->outputBuffer_)[samplesToKeep + i] = (*this->inputBuffer_)[i];
+      (*this->output_buffer_)[samplesToKeep + i] = (*this->input_buffer_)[i];
     }
   };
 };

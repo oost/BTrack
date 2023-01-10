@@ -47,25 +47,25 @@ public:
   BTrack();
 
   /** Constructor assuming frame size will be double the hopSize
-   * @param hopSize the hop size in audio samples
+   * @param hop_size the hop size in audio samples
    */
-  BTrack(int hopSize);
+  BTrack(int hop_size);
 
-  /** Constructor taking both hopSize and frameSize
-   * @param hopSize the hop size in audio samples
-   * @param frameSize the frame size in audio samples
+  /** Constructor taking both hop_size and frame_size
+   * @param hop_size the hop size in audio samples
+   * @param frame_size the frame size in audio samples
    */
-  BTrack(int hopSize, int frameSize, int sampling_rate = 44100);
+  BTrack(int hop_size, int frame_size, int sampling_rate = 44100);
 
   /** Destructor */
   ~BTrack();
 
   //=======================================================================
   /** Updates the hop and frame size used by the beat tracker
-   * @param hopSize the hop size in audio samples
-   * @param frameSize the frame size in audio samples
+   * @param hop_size the hop size in audio samples
+   * @param frame_size the frame size in audio samples
    */
-  void updateHopAndFrameSize(int hopSize, int frameSize);
+  void updateHopAndFrameSize(int hop_size, int frame_size);
 
   //=======================================================================
   /** Process a single audio frame
@@ -73,7 +73,7 @@ public:
    * samples should match the frame size that the algorithm was initialised
    * with.
    */
-  void processAudioFrame(std::vector<double> &frame);
+  void process_audio_frame(std::vector<double> &frame);
   void processAudioFrame(double *frame);
 
   /** Add new onset detection function sample to buffer and apply beat tracking
@@ -83,7 +83,7 @@ public:
 
   //=======================================================================
   /** @returns the current hop size being used by the beat tracker */
-  int getHopSize();
+  int get_hop_size();
 
   /** @returns true if a beat should occur in the current audio frame */
   bool beatDueInCurrentFrame();
@@ -113,26 +113,26 @@ public:
   /** Calculates a beat time in seconds, given the frame number, hop size and
    * sampling frequency. This version uses a long to represent the frame number
    * @param frameNumber the index of the current frame
-   * @param hopSize the hop size in audio samples
+   * @param hop_size the hop size in audio samples
    * @param fs the sampling frequency in Hz
    * @returns a beat time in seconds
    */
-  static double getBeatTimeInSeconds(long frameNumber, int hopSize, int fs);
+  static double getBeatTimeInSeconds(long frameNumber, int hop_size, int fs);
 
   /** Calculates a beat time in seconds, given the frame number, hop size and
    * sampling frequency. This version uses an int to represent the frame number
    * @param frameNumber the index of the current frame
-   * @param hopSize the hop size in audio samples
+   * @param hop_size the hop size in audio samples
    * @param fs the sampling frequency in Hz
    * @returns a beat time in seconds
    */
-  static double getBeatTimeInSeconds(int frameNumber, int hopSize, int fs);
+  static double getBeatTimeInSeconds(int frameNumber, int hop_size, int fs);
 
 private:
   /** Initialise with hop size and set all array sizes accordingly
-   * @param hopSize_ the hop size in audio samples
+   * @param hop_size_ the hop size in audio samples
    */
-  void setHopSize(int hopSize);
+  void set_hop_size(int hop_size);
 
   /** Resamples the onset detection function from an arbitrary number of samples
    * to 512 */
@@ -211,7 +211,7 @@ private:
   int beatCounter_; /**< keeps track of when the next beat is - will be zero
                       when the beat is due, and is set elsewhere in the
                       algorithm to be positive once a beat prediction is made */
-  int hopSize_;     /**< the hop size being used by the algorithm */
+  int hop_size_;    /**< the hop size being used by the algorithm */
   int onsetDFBufferSize_; /**< the onset detection function buffer size */
   bool tempoFixed_; /**< indicates whether the tempo should be fixed or not */
   bool
@@ -219,9 +219,9 @@ private:
                         */
   int FFTLengthForACFCalculation_; /**< the FFT length for the auto-correlation
                                      function calculation */
-  FFTOperator::Ptr fftOperator_;
-  FFTOperator::Ptr fftOperatorBackwards_;
-  ComplexDataBuffer::Ptr fftInputBuffer_;
+  FFTOperator::Ptr fft_operator_;
+  FFTOperator::Ptr fft_operator_backwards_;
+  ComplexDataBuffer::Ptr fft_input_buffer_;
 
   int sampling_rate_;
 };

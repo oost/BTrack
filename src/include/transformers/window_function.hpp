@@ -19,23 +19,23 @@ class WindowTransformer : public BufferedTransformer<double, double> {
 public:
   using Ptr = std::unique_ptr<WindowTransformer>;
 
-  WindowTransformer(std::size_t windowSize)
-      : BufferedTransformer(windowSize), window_(windowSize, 0) {}
+  WindowTransformer(std::size_t window_size)
+      : BufferedTransformer(window_size), window_(window_size, 0) {}
   virtual ~WindowTransformer() {}
 
 protected:
   void process() override {
 
-    if (inputBuffer_->size() != window_.size()) {
+    if (input_buffer_->size() != window_.size()) {
       throw std::range_error("Wrong size");
     }
 
-    if (inputBuffer_->size() != outputBuffer_->size()) {
+    if (input_buffer_->size() != output_buffer_->size()) {
       throw std::range_error("Wrong size");
     }
 
     for (int i = 0; i < window_.size(); i++) {
-      (*outputBuffer_)[i] = (*inputBuffer_)[i] * window_[i];
+      (*output_buffer_)[i] = (*input_buffer_)[i] * window_[i];
     }
   }
 

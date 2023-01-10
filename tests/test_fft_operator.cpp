@@ -31,12 +31,13 @@ almost_equal(T x, T y, int ulp) {
 }
 
 TEST_CASE("FFTOperator ", "[FFTOperator]") {
-  int frameSize = 8;
-  FFTOperator::Ptr fft_operator = FFTOperator::createOperator(frameSize, false);
+  int frame_size = 8;
+  FFTOperator::Ptr fft_operator =
+      FFTOperator::create_operator(frame_size, false);
 
   SECTION("Input and output buffers are created and have the correct size") {
-    ComplexDataBuffer &output = *fft_operator->outputData();
-    REQUIRE(output.size() == frameSize);
+    ComplexDataBuffer &output = *fft_operator->output_data();
+    REQUIRE(output.size() == frame_size);
     REQUIRE(sizeof(output[0]) == 2 * sizeof(double));
   }
 
@@ -46,7 +47,7 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
     input[1] = FFTOperator::complex_t(3.0, 4.0);
 
 #ifdef USE_KISS_FFT
-    kiss_fft_cpx *fftIn = reinterpret_cast<kiss_fft_cpx *>(input.rawData());
+    kiss_fft_cpx *fftIn = reinterpret_cast<kiss_fft_cpx *>(input.raw_data());
     REQUIRE(fftIn[0].r == 1.0);
     REQUIRE(fftIn[0].i == 2.0);
     REQUIRE(fftIn[1].r == 3.0);
@@ -54,7 +55,7 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
 #endif
 
 #ifdef USE_FFTW
-    fftw_complex *fftIn = reinterpret_cast<fftw_complex *>(input.rawData());
+    fftw_complex *fftIn = reinterpret_cast<fftw_complex *>(input.raw_data());
     REQUIRE(fftIn[0][0] == 1.0);
     REQUIRE(fftIn[0][1] == 2.0);
     REQUIRE(fftIn[1][0] == 3.0);
@@ -63,15 +64,15 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
   }
 
   SECTION("Test impulse function") {
-    ComplexDataBuffer::Ptr inputBuffer =
-        std::make_shared<ComplexDataBuffer>(frameSize);
-    ComplexDataBuffer::Ptr output = fft_operator->outputData();
+    ComplexDataBuffer::Ptr input_buffer =
+        std::make_shared<ComplexDataBuffer>(frame_size);
+    ComplexDataBuffer::Ptr output = fft_operator->output_data();
 
-    std::fill(inputBuffer->data().begin(), inputBuffer->data().end(),
+    std::fill(input_buffer->data().begin(), input_buffer->data().end(),
               std::complex<double>(0.0));
-    (*inputBuffer)[0] = 1;
+    (*input_buffer)[0] = 1;
 
-    fft_operator->setInput(inputBuffer);
+    fft_operator->set_input(input_buffer);
 
     fft_operator->execute();
 
@@ -83,23 +84,23 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
   SECTION("Edge cases") {
     auto freq = GENERATE(range(1, 7));
     SECTION("Test exp function") {
-      ComplexDataBuffer::Ptr inputBuffer =
-          std::make_shared<ComplexDataBuffer>(frameSize);
-      ComplexDataBuffer::Ptr output = fft_operator->outputData();
+      ComplexDataBuffer::Ptr input_buffer =
+          std::make_shared<ComplexDataBuffer>(frame_size);
+      ComplexDataBuffer::Ptr output = fft_operator->output_data();
 
-      for (int i = 0; i < frameSize; i++) {
-        (*inputBuffer)[i] =
+      for (int i = 0; i < frame_size; i++) {
+        (*input_buffer)[i] =
             std::exp(1i * (2 * std::numbers::pi *
-                           (static_cast<double>(i) / frameSize * freq)));
+                           (static_cast<double>(i) / frame_size * freq)));
       }
 
-      fft_operator->setInput(inputBuffer);
+      fft_operator->set_input(input_buffer);
 
       fft_operator->execute();
 
       for (std::size_t i = 0; i < output->size(); ++i) {
         if (i == freq) {
-          REQUIRE(almost_equal<double>((*output)[i].real(), frameSize,
+          REQUIRE(almost_equal<double>((*output)[i].real(), frame_size,
                                        ULP_PRECISION));
           REQUIRE(almost_equal((*output)[i].imag(), 0.0, ULP_PRECISION));
         } else {
@@ -110,16 +111,16 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
     }
 
     SECTION("Test shifted exp function") {
-      ComplexDataBuffer::Ptr inputBuffer =
-          std::make_shared<ComplexDataBuffer>(frameSize);
-      ComplexDataBuffer::Ptr output = fft_operator->outputData();
+      ComplexDataBuffer::Ptr input_buffer =
+          std::make_shared<ComplexDataBuffer>(frame_size);
+      ComplexDataBuffer::Ptr output = fft_operator->output_data();
 
-      fft_operator->setInput(inputBuffer);
+      fft_operator->set_input(input_buffer);
 
-      for (int i = 0; i < frameSize; i++) {
-        (*inputBuffer)[i] =
-            std::exp(1i * (2 * std::numbers::pi *
-                           (static_cast<double>(i) / frameSize * freq + 0.25)));
+      for (int i = 0; i < frame_size; i++) {
+        (*input_buffer)[i] = std::exp(
+            1i * (2 * std::numbers::pi *
+                  (static_cast<double>(i) / frame_size * freq + 0.25)));
       }
 
       fft_operator->execute();
@@ -127,7 +128,7 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
       for (std::size_t i = 0; i < output->size(); ++i) {
         if (i == freq) {
           REQUIRE(almost_equal((*output)[i].real(), 0.0, ULP_PRECISION));
-          REQUIRE(almost_equal<double>((*output)[i].imag(), frameSize,
+          REQUIRE(almost_equal<double>((*output)[i].imag(), frame_size,
                                        ULP_PRECISION));
         } else {
           REQUIRE(almost_equal((*output)[i].real(), 0.0, ULP_PRECISION));

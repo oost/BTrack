@@ -7,10 +7,10 @@ namespace transformers {
 
 class RectangularWindowTransformer : public WindowTransformer {
 public:
-  RectangularWindowTransformer(std::size_t windowSize)
-      : WindowTransformer(windowSize) {
+  RectangularWindowTransformer(std::size_t window_size)
+      : WindowTransformer(window_size) {
     // Rectangular window calculation
-    for (int n = 0; n < windowSize; n++) {
+    for (int n = 0; n < window_size; n++) {
       window_[n] = 1.0;
     }
   }

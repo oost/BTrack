@@ -16,13 +16,13 @@ public:
 
 protected:
   void process() override {
-    if (this->inputBuffer_->size() != this->outputBuffer_->size()) {
+    if (this->input_buffer_->size() != this->output_buffer_->size()) {
       throw std::range_error("Frame size should be less of same size");
     }
 
     // copy into complex array and zero pad
-    for (int i = 0; i < this->inputBuffer_->size(); i++) {
-      (*this->outputBuffer_)[i] = fn_((*this->inputBuffer_)[i]);
+    for (int i = 0; i < this->input_buffer_->size(); i++) {
+      (*this->output_buffer_)[i] = fn_((*this->input_buffer_)[i]);
     }
   }
 

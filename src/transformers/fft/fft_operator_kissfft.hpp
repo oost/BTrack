@@ -8,11 +8,11 @@
 namespace transformers {
 class FFTOperatorKissFFT : public FFTOperator {
 public:
-  FFTOperatorKissFFT(int frameSize, bool backward);
+  FFTOperatorKissFFT(int frame_size, bool backward);
   virtual ~FFTOperatorKissFFT();
 
 private:
-  void process(Buffer::Ptr input) override;
+  void process() override;
 
   kiss_fft_cfg cfg_; /**< Kiss FFT configuration */
 };

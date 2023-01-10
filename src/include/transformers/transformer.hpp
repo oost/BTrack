@@ -17,22 +17,22 @@ public:
 
   virtual Buffer::Ptr output() const = 0;
 
-  virtual void setInput(Buffer::Ptr inputBuffer) = 0;
+  virtual void set_input(Buffer::Ptr input_buffer) = 0;
 
-  virtual void addSink(Ptr sink) {
+  virtual void add_sink(Ptr sink) {
     sinks_.insert(sink);
-    sink->setInput(output());
+    sink->set_input(output());
   }
 
   void execute() {
     // need to check that inputBuffer exists first...
     process();
-    processSinks();
+    process_sinks();
   }
 
 protected:
   virtual void process() = 0;
-  void processSinks() {
+  void process_sinks() {
     for (auto &sink : sinks_) {
       sink->execute();
     }
@@ -49,24 +49,24 @@ public:
   using input_buffer_t = DataBuffer<I>;
   using input_buffer_ptr = std::shared_ptr<DataBuffer<I>>;
 
-  BufferedTransformer(std::size_t bufferSize) : Transformer() {
-    outputBuffer_ = std::make_shared<output_buffer_t>(bufferSize);
+  BufferedTransformer(std::size_t buffer_size) : Transformer() {
+    output_buffer_ = std::make_shared<output_buffer_t>(buffer_size);
   }
 
-  void addSink(Ptr sink) override {
-    Transformer::addSink(sink);
-    sink->setInput(output());
+  void add_sink(Ptr sink) override {
+    Transformer::add_sink(sink);
+    sink->set_input(output());
   }
 
   Buffer::Ptr output() const override {
-    return std::static_pointer_cast<Buffer>(outputBuffer_);
+    return std::static_pointer_cast<Buffer>(output_buffer_);
   };
 
-  output_buffer_ptr outputData() { return outputBuffer_; }
+  output_buffer_ptr output_data() { return output_buffer_; }
 
-  void setInput(Buffer::Ptr inputBuffer) override {
-    inputBuffer_ = std::dynamic_pointer_cast<input_buffer_t>(inputBuffer);
-    if (inputBuffer_ == nullptr) {
+  void set_input(Buffer::Ptr input_buffer) override {
+    input_buffer_ = std::dynamic_pointer_cast<input_buffer_t>(input_buffer);
+    if (input_buffer_ == nullptr) {
       throw std::runtime_error("Chained imcompatible transformers");
     }
   }
@@ -76,8 +76,8 @@ protected:
   //   return *std::dynamic_pointer_cast<DataBuffer<I>>(input);
   // }
 
-  output_buffer_ptr outputBuffer_;
-  input_buffer_ptr inputBuffer_;
+  output_buffer_ptr output_buffer_;
+  input_buffer_ptr input_buffer_;
 };
 
 } // namespace transformers

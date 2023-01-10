@@ -15,21 +15,21 @@ TEST_CASE("BTrack ", "[BTrack]") {
     SECTION("constructorWithNoArguments") {
       BTrack b;
 
-      REQUIRE(b.getHopSize() == 512);
+      REQUIRE(b.get_hop_size() == 512);
     }
 
     //======================================================================
     SECTION("constructorWithHopSize") {
       BTrack b(1024);
 
-      REQUIRE(b.getHopSize() == 1024);
+      REQUIRE(b.get_hop_size() == 1024);
     }
 
     //======================================================================
     SECTION("constructorWithHopSizeAndFrameSize") {
       BTrack b(256, 512);
 
-      REQUIRE(b.getHopSize() == 256);
+      REQUIRE(b.get_hop_size() == 256);
     }
   }
 
@@ -37,14 +37,14 @@ TEST_CASE("BTrack ", "[BTrack]") {
     std::vector<double> v{1, 2, 3};
 
     SECTION("normalizeArray") {
-      normalizeArray(v);
+      normalize_array(v);
       REQUIRE_THAT(v[0], WithinAbs(1. / 6, 0.00001));
       REQUIRE_THAT(v[1], WithinAbs(2. / 6, 0.00001));
       REQUIRE_THAT(v[2], WithinAbs(3. / 6, 0.00001));
     }
 
     SECTION("calculateMeanOfArray") {
-      double m = calculateMeanOfArray(v.begin(), v.end());
+      double m = calculate_mean_of_array(v.begin(), v.end());
       REQUIRE_THAT(m, WithinAbs(2., 0.00001));
     }
   }
@@ -58,9 +58,9 @@ TEST_CASE("BTrack ", "[BTrack]") {
       std::vector<double> data(hopSize, 1.0);
       for (int i = 0; i < hopSize; i++) {
       }
-      double res = odf.calculateOnsetDetectionFunctionSample(data);
+      double res = odf.calculate_onset_detection_function_sample(data);
       REQUIRE_THAT(res, WithinAbs(2707, 1));
-      res = odf.calculateOnsetDetectionFunctionSample(data);
+      res = odf.calculate_onset_detection_function_sample(data);
       REQUIRE_THAT(res, WithinAbs(985, 1));
     }
 
@@ -69,9 +69,9 @@ TEST_CASE("BTrack ", "[BTrack]") {
       for (int i = 0; i < hopSize; i++) {
         data[i] = i;
       }
-      double res = odf.calculateOnsetDetectionFunctionSample(data);
+      double res = odf.calculate_onset_detection_function_sample(data);
       REQUIRE_THAT(res, WithinAbs(158214, 1));
-      res = odf.calculateOnsetDetectionFunctionSample(data);
+      res = odf.calculate_onset_detection_function_sample(data);
       REQUIRE_THAT(res, WithinAbs(1296727, 1));
     }
   }

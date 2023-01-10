@@ -16,15 +16,15 @@ protected:
     double sum;
     double sample;
 
-    sum = std::inner_product(inputBuffer_->data().begin(),
-                             inputBuffer_->data().end(),
-                             inputBuffer_->data().begin(), 0);
+    sum = std::inner_product(input_buffer_->data().begin(),
+                             input_buffer_->data().end(),
+                             input_buffer_->data().begin(), 0);
 
     sample = sum - prevEnergySum_; // sample is first order difference in energy
 
     prevEnergySum_ = sum; // store energy value for next calculation
 
-    (*outputBuffer_)[0] = (sample > 0) ? sample : 0; // return difference
+    (*output_buffer_)[0] = (sample > 0) ? sample : 0; // return difference
   }
 
   double prevEnergySum_ = 0;

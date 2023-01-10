@@ -7,10 +7,10 @@
 namespace transformers {
 class FFTOperatorFFTW : public FFTOperator {
 public:
-  FFTOperatorFFTW(int frameSize, bool backward);
+  FFTOperatorFFTW(int frame_size, bool backward);
   virtual ~FFTOperatorFFTW();
 
-  void setInput(Buffer::Ptr inputBuffer) override;
+  void set_input(Buffer::Ptr input_buffer) override;
 
 private:
   void prepare_plan();

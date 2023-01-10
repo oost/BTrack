@@ -177,7 +177,7 @@ BTrackVamp::FeatureSet BTrackVamp::process(const float *const *inputBuffers,
   }
 
   // process the frame in the beat tracker
-  b.processAudioFrame(frame);
+  b.process_audio_frame(frame);
 
   // create a FeatureSet
   FeatureSet featureSet;

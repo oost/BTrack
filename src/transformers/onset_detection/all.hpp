@@ -15,8 +15,8 @@
 
 namespace transformers {
 
-Transformer::Ptr createDetectionFunction(DetectionFunctionType function_type,
-                                         std::size_t frameSize) {
+Transformer::Ptr create_detection_function(DetectionFunctionType function_type,
+                                           std::size_t frameSize) {
   // set the window to the specified type
 
   switch (function_type) {

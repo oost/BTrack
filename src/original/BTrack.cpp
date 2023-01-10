@@ -209,7 +209,7 @@ double BTrack::getLatestCumulativeScoreValue() {
 //=======================================================================
 void BTrack::processAudioFrame(double *frame) {
   // calculate the onset detection function sample for the frame
-  double sample = odf.calculateOnsetDetectionFunctionSample(frame);
+  double sample = odf.calculate_onset_detection_function_sample(frame);
 
   // process the new onset detection function sample in the beat tracking
   // algorithm

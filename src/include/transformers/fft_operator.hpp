@@ -16,10 +16,10 @@ public:
   using complex_t = std::complex<double>;
   using complex_v = std::vector<complex_t>;
 
-  FFTOperator(int frameSize, bool backward)
-      : BufferedTransformer(frameSize), backward_{backward} {};
+  FFTOperator(int frame_size, bool backward)
+      : BufferedTransformer(frame_size), backward_{backward} {};
 
-  static Ptr createOperator(int frameSize, bool backward);
+  static Ptr create_operator(int frame_size, bool backward);
 
 protected:
   virtual void process() = 0;

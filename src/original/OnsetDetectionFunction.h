@@ -100,7 +100,7 @@ public:
    * processed
    * @returns the onset detection function sample
    */
-  double calculateOnsetDetectionFunctionSample(double *buffer);
+  double calculate_onset_detection_function_sample(double *buffer);
 
   /** Set the detection function type
    * @param onsetDetectionFunctionType_ the type of onset detection function to

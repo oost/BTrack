@@ -43,9 +43,9 @@ TEST_CASE("BTrack ", "[BTrack]") {
       std::vector<double> data(hopSize, 1.0);
       for (int i = 0; i < hopSize; i++) {
       }
-      double res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      double res = odf.calculate_onset_detection_function_sample(data.data());
       REQUIRE_THAT(res, WithinAbs(2707, 1));
-      res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      res = odf.calculate_onset_detection_function_sample(data.data());
       REQUIRE_THAT(res, WithinAbs(985, 1));
     }
 
@@ -54,9 +54,9 @@ TEST_CASE("BTrack ", "[BTrack]") {
       for (int i = 0; i < hopSize; i++) {
         data[i] = i;
       }
-      double res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      double res = odf.calculate_onset_detection_function_sample(data.data());
       REQUIRE_THAT(res, WithinAbs(158214, 1));
-      res = odf.calculateOnsetDetectionFunctionSample(data.data());
+      res = odf.calculate_onset_detection_function_sample(data.data());
       REQUIRE_THAT(res, WithinAbs(1296727, 1));
     }
   }

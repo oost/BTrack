@@ -12,18 +12,18 @@ namespace transformers {
 
 class HighFrequencyContent : public DetectionFunction<std::complex<double>> {
 public:
-  HighFrequencyContent(std::size_t inputSize)
-      : DetectionFunction(), magSpec_(inputSize, 0.0),
-        prevMagSpec_(inputSize, 0.0) {}
+  HighFrequencyContent(std::size_t input_size)
+      : DetectionFunction(), magSpec_(input_size, 0.0),
+        prevMagSpec_(input_size, 0.0) {}
 
 protected:
   void process() override {
     double sum = 0; // initialise sum to zero
 
     // compute phase values from fft output and sum deviations
-    for (int i = 0; i < inputBuffer_->size(); i++) {
+    for (int i = 0; i < input_buffer_->size(); i++) {
       // calculate magnitude value
-      magSpec_[i] = std::abs((*inputBuffer_)[i]);
+      magSpec_[i] = std::abs((*input_buffer_)[i]);
 
       sum = sum + (magSpec_[i] * static_cast<double>(i + 1));
 
@@ -31,7 +31,7 @@ protected:
       prevMagSpec_[i] = magSpec_[i];
     }
 
-    (*outputBuffer_)[0] = sum;
+    (*output_buffer_)[0] = sum;
   }
 
   std::vector<double> magSpec_;

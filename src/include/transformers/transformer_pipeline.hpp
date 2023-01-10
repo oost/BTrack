@@ -12,40 +12,40 @@ template <typename I> class TransformerPipeline : public Transformer {
 public:
   using Ptr = std::shared_ptr<TransformerPipeline>;
 
-  TransformerPipeline(std::size_t inputBufferSize)
-      : Transformer(), inputBuffer_{
-                           std::make_shared<DataBuffer<I>>(inputBufferSize)} {}
+  TransformerPipeline(std::size_t input_buffer_size)
+      : Transformer(), input_buffer_{std::make_shared<DataBuffer<I>>(
+                           input_buffer_size)} {}
 
   Buffer::Ptr output() const override {
-    if (finalTransform_) {
-      return finalTransform_->output();
+    if (final_transform_) {
+      return final_transform_->output();
     }
     return nullptr;
   };
 
-  typename DataBuffer<I>::Ptr inputBuffer() const { return inputBuffer_; };
+  typename DataBuffer<I>::Ptr input_buffer() const { return input_buffer_; };
 
-  void setInput(Buffer::Ptr inputBuffer) override {
-    inputBuffer_ = std::dynamic_pointer_cast<DataBuffer<I>>(inputBuffer);
-    if (inputBuffer_ == nullptr) {
+  void set_input(Buffer::Ptr input_buffer) override {
+    input_buffer_ = std::dynamic_pointer_cast<DataBuffer<I>>(input_buffer);
+    if (input_buffer_ == nullptr) {
       throw std::runtime_error("Chained imcompatible transformers");
     }
   }
 
-  void setInitialTransform(Transformer::Ptr initialTransform) {
-    initialTransform_ = initialTransform;
-    initialTransform_->setInput(inputBuffer_);
+  void set_initial_transform(Transformer::Ptr initial_transform) {
+    initial_transform_ = initial_transform;
+    initial_transform_->set_input(input_buffer_);
   }
-  void setFinalTransform(Transformer::Ptr finalTransform) {
-    finalTransform_ = finalTransform;
+  void set_final_transform(Transformer::Ptr final_transform) {
+    final_transform_ = final_transform;
   }
 
 private:
-  void process() override { initialTransform_->execute(); }
+  void process() override { initial_transform_->execute(); }
 
-  typename DataBuffer<I>::Ptr inputBuffer_;
-  Transformer::Ptr initialTransform_;
-  Transformer::Ptr finalTransform_;
+  typename DataBuffer<I>::Ptr input_buffer_;
+  Transformer::Ptr initial_transform_;
+  Transformer::Ptr final_transform_;
 };
 
 } // namespace transformers

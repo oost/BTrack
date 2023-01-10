@@ -3,36 +3,36 @@
 
 using namespace transformers;
 
-FFTOperator::Ptr FFTOperator::createOperator(int frameSize, bool backward) {
-  return std::make_unique<FFTOperatorFFTW>(frameSize, backward);
+FFTOperator::Ptr FFTOperator::create_operator(int frame_size, bool backward) {
+  return std::make_unique<FFTOperatorFFTW>(frame_size, backward);
 }
 
-FFTOperatorFFTW::FFTOperatorFFTW(int frameSize, bool backward)
-    : FFTOperator(frameSize, backward) {
+FFTOperatorFFTW::FFTOperatorFFTW(int frame_size, bool backward)
+    : FFTOperator(frame_size, backward) {
   prepare_plan();
 }
 
-void FFTOperatorFFTW::setInput(Buffer::Ptr inputBuffer) {
-  BufferedTransformer::setInput(inputBuffer);
+void FFTOperatorFFTW::set_input(Buffer::Ptr input_buffer) {
+  BufferedTransformer::set_input(input_buffer);
   prepare_plan();
 }
 
 void FFTOperatorFFTW::prepare_plan() {
-  if (!inputBuffer_) {
+  if (!input_buffer_) {
     return;
   }
   if (plan_) {
     fftw_destroy_plan(plan_);
   }
-  if (inputBuffer_->size() != outputBuffer_->size()) {
+  if (input_buffer_->size() != output_buffer_->size()) {
     throw std::runtime_error("Input and output sizes don't match");
   }
-  if (inputBuffer_->size()) {
+  if (input_buffer_->size()) {
 
     plan_ = fftw_plan_dft_1d(
-        outputBuffer_->size(),
-        reinterpret_cast<fftw_complex *>(inputBuffer_->rawData()),
-        reinterpret_cast<fftw_complex *>(outputBuffer_->rawData()),
+        output_buffer_->size(),
+        reinterpret_cast<fftw_complex *>(input_buffer_->raw_data()),
+        reinterpret_cast<fftw_complex *>(output_buffer_->raw_data()),
         backward_ ? FFTW_BACKWARD : FFTW_FORWARD, FFTW_ESTIMATE);
   }
 }
