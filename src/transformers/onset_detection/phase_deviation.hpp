@@ -14,9 +14,9 @@ namespace transformers {
 class PhaseDeviation : public DetectionFunction<std::complex<double>> {
 public:
   PhaseDeviation(std::size_t input_size)
-      : DetectionFunction(), magSpec_(input_size, 0.0),
-        prevMagSpec_(input_size, 0.0), phase_(input_size, 0.0),
-        prevPhase_(input_size, 0.0), prevPhase2_(input_size, 0.0) {}
+      : DetectionFunction(), mag_spec_(input_size, 0.0),
+        prev_mag_spec_(input_size, 0.0), phase_(input_size, 0.0),
+        prev_phase_(input_size, 0.0), prev_phase2_(input_size, 0.0) {}
 
 protected:
   void process() override {
@@ -33,13 +33,13 @@ protected:
       //                  fft_operator_->output()[i].real());
       phase_[i] = std::arg((*input_buffer_)[i]);
       // calculate magnitude value
-      magSpec_[i] = std::abs((*input_buffer_)[i]);
+      mag_spec_[i] = std::abs((*input_buffer_)[i]);
 
       // if bin is not just a low energy bin then examine phase deviation
-      if (magSpec_[i] > 0.1) {
-        dev =
-            phase_[i] - (2 * prevPhase_[i]) + prevPhase2_[i]; // phase deviation
-        pdev = princarg(dev); // wrap into [-pi,pi] range
+      if (mag_spec_[i] > 0.1) {
+        dev = phase_[i] - (2 * prev_phase_[i]) +
+              prev_phase2_[i]; // phase deviation
+        pdev = princarg(dev);  // wrap into [-pi,pi] range
 
         // make all values positive
         if (pdev < 0) {
@@ -51,19 +51,19 @@ protected:
       }
 
       // store values for next calculation
-      prevPhase2_[i] = prevPhase_[i];
-      prevPhase_[i] = phase_[i];
+      prev_phase2_[i] = prev_phase_[i];
+      prev_phase_[i] = phase_[i];
     }
 
-    (*output_buffer_)[0] = sum;
+    output_buffer_->value() = sum;
   }
 
-  std::vector<double> magSpec_;
-  std::vector<double> prevMagSpec_;
+  std::vector<double> mag_spec_;
+  std::vector<double> prev_mag_spec_;
 
   std::vector<double> phase_;
-  std::vector<double> prevPhase_;
-  std::vector<double> prevPhase2_;
+  std::vector<double> prev_phase_;
+  std::vector<double> prev_phase2_;
 };
 } // namespace transformers
 

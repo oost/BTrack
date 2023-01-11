@@ -34,6 +34,7 @@
 using transformers::FFTOperator;
 using transformers::MapTransformer;
 using transformers::ShiftTransformer;
+using transformers::SingleValueBuffer;
 using transformers::SwapTransformer;
 using transformers::Transformer;
 
@@ -55,8 +56,9 @@ OnsetDetectionFunction::OnsetDetectionFunction(
 
   // buffer_ = std::make_shared<RealDataBuffer>(hop_size);
 
-  pipeline_ = std::make_shared<TransformerPipeline<double>>(hop_size);
+  pipeline_ = std::make_shared<TransformerPipeline<DataBuffer<double>>>();
   buffer_ = pipeline_->input_buffer();
+  buffer_->resize(hop_size);
 
   Transformer::Ptr shifter =
       std::make_shared<ShiftTransformer<double>>(frame_size);
@@ -111,8 +113,9 @@ double OnsetDetectionFunction::calculate_onset_detection_function_sample(
 
   pipeline_->execute();
 
-  RealDataBuffer &output =
-      *std::dynamic_pointer_cast<RealDataBuffer>(pipeline_->output());
+  SingleValueBuffer<double> &output =
+      *std::dynamic_pointer_cast<SingleValueBuffer<double>>(
+          pipeline_->output());
 
-  return output[0];
+  return output.value();
 }

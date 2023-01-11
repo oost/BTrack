@@ -14,15 +14,15 @@ class ComplexSpectralDifferenceHWR
     : public DetectionFunction<std::complex<double>> {
 public:
   ComplexSpectralDifferenceHWR(std::size_t input_size)
-      : DetectionFunction(), magSpec_(input_size, 0.0),
-        prevMagSpec_(input_size, 0.0), phase_(input_size, 0.0),
-        prevPhase_(input_size, 0.0), prevPhase2_(input_size, 0.0) {}
+      : DetectionFunction(), mag_spec_(input_size, 0.0),
+        prev_mag_spec_(input_size, 0.0), phase_(input_size, 0.0),
+        prev_phase_(input_size, 0.0), prev_phase2_(input_size, 0.0) {}
 
 protected:
   void process() override {
-    double phaseDeviation;
+    double phase_deviation;
     double sum;
-    double magnitudeDifference;
+    double magnitude_difference;
     double csd;
 
     sum = 0; // initialise sum to zero
@@ -34,41 +34,41 @@ protected:
       //                  fft_operator_->output()[i].real());
       phase_[i] = std::arg((*input_buffer_)[i]);
       // calculate magnitude value
-      magSpec_[i] = std::abs((*input_buffer_)[i]);
+      mag_spec_[i] = std::abs((*input_buffer_)[i]);
 
       // phase deviation
-      phaseDeviation = phase_[i] - (2 * prevPhase_[i]) + prevPhase2_[i];
+      phase_deviation = phase_[i] - (2 * prev_phase_[i]) + prev_phase2_[i];
 
       // calculate magnitude difference (real part of Euclidean distance between
       // complex frames)
-      magnitudeDifference = magSpec_[i] - prevMagSpec_[i];
+      magnitude_difference = mag_spec_[i] - prev_mag_spec_[i];
 
       // if we have a positive change in magnitude, then include in sum,
       // otherwise ignore (half-wave rectification)
-      if (magnitudeDifference > 0) {
+      if (magnitude_difference > 0) {
         // calculate complex spectral difference for the current spectral bin
-        csd = sqrt(pow(magSpec_[i], 2) + pow(prevMagSpec_[i], 2) -
-                   2 * magSpec_[i] * prevMagSpec_[i] * cos(phaseDeviation));
+        csd = sqrt(pow(mag_spec_[i], 2) + pow(prev_mag_spec_[i], 2) -
+                   2 * mag_spec_[i] * prev_mag_spec_[i] * cos(phase_deviation));
 
         // add to sum
         sum = sum + csd;
       }
 
       // store values for next calculation
-      prevPhase2_[i] = prevPhase_[i];
-      prevPhase_[i] = phase_[i];
-      prevMagSpec_[i] = magSpec_[i];
+      prev_phase2_[i] = prev_phase_[i];
+      prev_phase_[i] = phase_[i];
+      prev_mag_spec_[i] = mag_spec_[i];
     }
 
-    (*output_buffer_)[0] = sum;
+    output_buffer_->value() = sum;
   }
 
-  std::vector<double> magSpec_;
-  std::vector<double> prevMagSpec_;
+  std::vector<double> mag_spec_;
+  std::vector<double> prev_mag_spec_;
 
   std::vector<double> phase_;
-  std::vector<double> prevPhase_;
-  std::vector<double> prevPhase2_;
+  std::vector<double> prev_phase_;
+  std::vector<double> prev_phase2_;
 };
 
 } // namespace transformers

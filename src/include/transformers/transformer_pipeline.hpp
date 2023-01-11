@@ -1,5 +1,5 @@
-#ifndef BTRACK__TRANSFORM_PIPELINE_HPP
-#define BTRACK__TRANSFORM_PIPELINE_HPP
+#ifndef BTRACK__TRANSFORM__TRANSFORMER_PIPELINE_HPP
+#define BTRACK__TRANSFORM__TRANSFORMER_PIPELINE_HPP
 
 #include <memory>
 
@@ -8,13 +8,12 @@
 
 namespace transformers {
 
-template <typename I> class TransformerPipeline : public Transformer {
+template <BufferObject IB> class TransformerPipeline : public Transformer {
 public:
   using Ptr = std::shared_ptr<TransformerPipeline>;
 
-  TransformerPipeline(std::size_t input_buffer_size)
-      : Transformer(), input_buffer_{std::make_shared<DataBuffer<I>>(
-                           input_buffer_size)} {}
+  TransformerPipeline()
+      : Transformer(), input_buffer_{std::make_shared<IB>()} {}
 
   Buffer::Ptr output() const override {
     if (final_transform_) {
@@ -23,10 +22,10 @@ public:
     return nullptr;
   };
 
-  typename DataBuffer<I>::Ptr input_buffer() const { return input_buffer_; };
+  typename IB::Ptr input_buffer() const { return input_buffer_; };
 
   void set_input(Buffer::Ptr input_buffer) override {
-    input_buffer_ = std::dynamic_pointer_cast<DataBuffer<I>>(input_buffer);
+    input_buffer_ = std::dynamic_pointer_cast<IB>(input_buffer);
     if (input_buffer_ == nullptr) {
       throw std::runtime_error("Chained imcompatible transformers");
     }
@@ -43,11 +42,11 @@ public:
 private:
   void process() override { initial_transform_->execute(); }
 
-  typename DataBuffer<I>::Ptr input_buffer_;
+  typename IB::Ptr input_buffer_;
   Transformer::Ptr initial_transform_;
   Transformer::Ptr final_transform_;
 };
 
 } // namespace transformers
 
-#endif // BTRACK__TRANSFORM_PIPELINE_HPP
+#endif // BTRACK__TRANSFORM__TRANSFORMER_PIPELINE_HPP

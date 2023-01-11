@@ -14,8 +14,8 @@ namespace transformers {
 class SpectralDifferenceHWR : public DetectionFunction<std::complex<double>> {
 public:
   SpectralDifferenceHWR(std::size_t input_size)
-      : DetectionFunction(), magSpec_(input_size, 0.0),
-        prevMagSpec_(input_size, 0.0) {}
+      : DetectionFunction(), mag_spec_(input_size, 0.0),
+        prev_mag_spec_(input_size, 0.0) {}
 
 protected:
   void process() override {
@@ -23,24 +23,24 @@ protected:
     double sum;
 
     // std::transform(
-    //     input.begin(), input.end(), magSpec_.begin(),
+    //     input.begin(), input.end(), mag_spec_.begin(),
     //     [](std::complex<double> a) -> double { return std::abs(a); });
     std::transform(input_buffer_->data().begin(), input_buffer_->data().end(),
-                   magSpec_.begin(), std::abs<double>);
+                   mag_spec_.begin(), std::abs<double>);
     // // compute first (N/2)+1 mag values
     // for (int i = 0; i < (frameSize_ / 2) + 1; i++) {
-    //   magSpec_[i] = std::abs(fft_operator_->output()[i]);
+    //   mag_spec_[i] = std::abs(fft_operator_->output()[i]);
     // }
     // // mag spec symmetric above (N/2)+1 so copy previous values
     // for (int i = (frameSize_ / 2) + 1; i < frameSize_; i++) {
-    //   magSpec_[i] = magSpec_[frameSize_ - i];
+    //   mag_spec_[i] = mag_spec_[frameSize_ - i];
     // }
 
     sum = 0; // initialise sum to zero
 
     for (int i = 0; i < input_buffer_->size(); i++) {
       // calculate difference
-      diff = magSpec_[i] - prevMagSpec_[i];
+      diff = mag_spec_[i] - prev_mag_spec_[i];
 
       // only add up positive differences
       if (diff > 0) {
@@ -50,14 +50,14 @@ protected:
 
       // store magnitude spectrum bin for next detection function sample
       // calculation
-      prevMagSpec_[i] = magSpec_[i];
+      prev_mag_spec_[i] = mag_spec_[i];
     }
 
-    (*output_buffer_)[0] = sum;
+    output_buffer_->value() = sum;
   }
 
-  std::vector<double> magSpec_;
-  std::vector<double> prevMagSpec_;
+  std::vector<double> mag_spec_;
+  std::vector<double> prev_mag_spec_;
 };
 } // namespace transformers
 

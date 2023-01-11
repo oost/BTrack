@@ -24,9 +24,9 @@ enum class DetectionFunctionType {
 };
 
 template <typename I>
-class DetectionFunction : public BufferedTransformer<I, double> {
+class DetectionFunction : public ReductionTransformer<I, double> {
 public:
-  DetectionFunction() : BufferedTransformer<I, double>(1) {}
+  DetectionFunction() : ReductionTransformer<I, double>() {}
 };
 
 Transformer::Ptr createDetectionFunction(DetectionFunctionType function_type);

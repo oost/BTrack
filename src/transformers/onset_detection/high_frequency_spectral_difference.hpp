@@ -14,8 +14,8 @@ class HighFrequencySpectralDifference
     : public DetectionFunction<std::complex<double>> {
 public:
   HighFrequencySpectralDifference(std::size_t input_size)
-      : DetectionFunction(), magSpec_(input_size, 0.0),
-        prevMagSpec_(input_size, 0.0) {}
+      : DetectionFunction(), mag_spec_(input_size, 0.0),
+        prev_mag_spec_(input_size, 0.0) {}
 
 protected:
   void process() override {
@@ -27,10 +27,10 @@ protected:
     // compute phase values from fft output and sum deviations
     for (int i = 0; i < input_buffer_->size(); i++) {
       // calculate magnitude value
-      magSpec_[i] = std::abs((*input_buffer_)[i]);
+      mag_spec_[i] = std::abs((*input_buffer_)[i]);
 
       // calculate difference
-      mag_diff = magSpec_[i] - prevMagSpec_[i];
+      mag_diff = mag_spec_[i] - prev_mag_spec_[i];
 
       if (mag_diff < 0) {
         mag_diff = -mag_diff;
@@ -39,14 +39,14 @@ protected:
       sum = sum + (mag_diff * static_cast<double>(i + 1));
 
       // store values for next calculation
-      prevMagSpec_[i] = magSpec_[i];
+      prev_mag_spec_[i] = mag_spec_[i];
     }
 
-    (*output_buffer_)[0] = sum;
+    output_buffer_->value() = sum;
   }
 
-  std::vector<double> magSpec_;
-  std::vector<double> prevMagSpec_;
+  std::vector<double> mag_spec_;
+  std::vector<double> prev_mag_spec_;
 };
 } // namespace transformers
 

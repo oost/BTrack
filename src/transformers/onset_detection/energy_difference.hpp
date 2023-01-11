@@ -20,14 +20,15 @@ protected:
                              input_buffer_->data().end(),
                              input_buffer_->data().begin(), 0);
 
-    sample = sum - prevEnergySum_; // sample is first order difference in energy
+    sample =
+        sum - prev_energy_sum_; // sample is first order difference in energy
 
-    prevEnergySum_ = sum; // store energy value for next calculation
+    prev_energy_sum_ = sum; // store energy value for next calculation
 
-    (*output_buffer_)[0] = (sample > 0) ? sample : 0; // return difference
+    output_buffer_->value() = (sample > 0) ? sample : 0; // return difference
   }
 
-  double prevEnergySum_ = 0;
+  double prev_energy_sum_ = 0;
 };
 
 } // namespace transformers

@@ -28,7 +28,11 @@
 #include <samplerate.h>
 
 #include "beat_tracker.hpp"
+#include "transformers/beat/all.hpp"
 #include "utils.hpp"
+
+using transformers::BeatPredictor;
+using transformers::Buffer;
 
 constexpr double rayparam = 43.0;
 constexpr std::size_t combfilterbank_size_ = 128;
@@ -116,6 +120,37 @@ BTrack::BTrack(int hop_size, int frame_size, int sampling_rate)
   fft_operator_backwards_ =
       FFTOperator::create_operator(FFTLengthForACFCalculation_, true);
   fft_operator_backwards_->set_input(fft_operator_->output());
+
+  pipeline_ = std::make_shared<TransformerPipeline<MultiBuffer>>();
+  // MultiBuffer::Ptr input_buffer =
+  //     std::dynamic_pointer_cast<MultiBuffer>(pipeline_->input_buffer());
+
+  // buffer_ = pipeline_->input_buffer();
+
+  // Transformer::Ptr shifter =
+  //     std::make_shared<ShiftTransformer<double>>(frame_size);
+  // pipeline_->set_initial_transform(shifter);
+
+  // Transformer::Ptr window = createWindowTransformer(window_type, frame_size);
+  // shifter->add_sink(window);
+
+  // Transformer::Ptr swapper =
+  //     std::make_shared<SwapTransformer<double>>(frame_size);
+  // window->add_sink(swapper);
+
+  // Transformer::Ptr mapper =
+  //     std::make_shared<MapTransformer<double, std::complex<double>>>(
+  //         frame_size, [](double v) { return std::complex<double>(v, 0); });
+  // swapper->add_sink(mapper);
+
+  // FFTOperator::Ptr fft = FFTOperator::create_operator(frame_size, false);
+  // mapper->add_sink(std::static_pointer_cast<Transformer>(fft));
+
+  // Transformer::Ptr odf =
+  //     create_detection_function(onset_detection_function_type, frame_size);
+  // fft->add_sink(odf);
+
+  // pipeline_->set_final_transform(odf);
 }
 
 //=======================================================================
@@ -201,6 +236,7 @@ void BTrack::process_audio_frame(std::vector<double> &frame) {
 
 void BTrack::processAudioFrame(double *frame) {
   std::vector<double> frame_vec(frame, frame + hop_size_);
+  process_audio_frame(frame_vec);
 }
 
 //=======================================================================

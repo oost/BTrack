@@ -30,6 +30,7 @@
 #include "transformers/transformer_pipeline.hpp"
 #include "transformers/window_function.hpp"
 
+using transformers::DataBuffer;
 using transformers::DetectionFunctionType;
 using transformers::RealDataBuffer;
 using transformers::TransformerPipeline;
@@ -85,7 +86,7 @@ private:
   int hop_size_;   /**< audio hop_size */
 
   //=======================================================================
-  TransformerPipeline<double>::Ptr pipeline_;
+  TransformerPipeline<DataBuffer<double>>::Ptr pipeline_;
 
   //=======================================================================
   std::shared_ptr<RealDataBuffer> buffer_;

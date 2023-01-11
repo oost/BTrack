@@ -25,11 +25,13 @@
 #include "circular_buffer.h"
 #include "onset_detection_function.hpp"
 #include "transformers/fft_operator.hpp"
+#include "transformers/transformer_pipeline.hpp"
 #include <vector>
 
 using transformers::ComplexDataBuffer;
 using transformers::DataBuffer;
 using transformers::FFTOperator;
+using transformers::MultiBuffer;
 
 // #include "btrack_config.h"
 
@@ -39,6 +41,7 @@ using transformers::FFTOperator;
  * audio frames or onset detection function samples and also
  * contains some static functions for calculating beat times in seconds
  */
+
 class BTrack {
 
 public:
@@ -222,6 +225,8 @@ private:
   FFTOperator::Ptr fft_operator_;
   FFTOperator::Ptr fft_operator_backwards_;
   ComplexDataBuffer::Ptr fft_input_buffer_;
+
+  TransformerPipeline<MultiBuffer>::Ptr pipeline_;
 
   int sampling_rate_;
 };

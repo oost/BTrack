@@ -13,9 +13,9 @@ class EnergyEnvelope : public DetectionFunction<double> {
 public:
 protected:
   void process() override {
-    (*output_buffer_)[0] = std::inner_product(input_buffer_->data().begin(),
-                                              input_buffer_->data().end(),
-                                              input_buffer_->data().begin(), 0);
+    output_buffer_->value() = std::inner_product(
+        input_buffer_->data().begin(), input_buffer_->data().end(),
+        input_buffer_->data().begin(), 0);
   }
 };
 } // namespace transformers
