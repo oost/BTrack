@@ -69,10 +69,10 @@ btrack_trackBeats(py::array_t<double> input, int hopSize, int frameSize) {
     b.process_audio_frame(buffer);
 
     // if a beat is currently scheduled
-    if (b.beatDueInCurrentFrame()) {
+    if (b.beat_due_in_current_frame()) {
       r(beatnum, 0) = i;
-      r(beatnum, 1) = BTrack::getBeatTimeInSeconds(i, hopSize, 44100);
-      r(beatnum, 2) = b.getCurrentTempoEstimate();
+      r(beatnum, 1) = BTrack::get_beat_time_in_seconds(i, hopSize, 44100);
+      r(beatnum, 2) = b.get_current_tempo_estimate();
       beatnum = beatnum + 1;
     }
   }
@@ -151,11 +151,11 @@ btrack_trackBeatsFromOnsetDF(py::array_t<double> input, int hopSize,
   for (long i = 0; i < numframes; i++) {
     df_val = ptr_input[i] + 0.0001;
 
-    b.processOnsetDetectionFunctionSample(
-        df_val); // process df sample in beat tracker
+    b.process_onset_detection_function_sample(df_val);
+    // process df sample in beat tracker
 
-    if (b.beatDueInCurrentFrame()) {
-      ptr_output[beatnum] = BTrack::getBeatTimeInSeconds(i, hopSize, 44100);
+    if (b.beat_due_in_current_frame()) {
+      ptr_output[beatnum] = BTrack::get_beat_time_in_seconds(i, hopSize, 44100);
       beatnum = beatnum + 1;
     }
   }

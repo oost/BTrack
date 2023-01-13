@@ -23,7 +23,7 @@
 #define __ONSETDETECTIONFUNCTION_H
 
 #include <memory>
-#include <vector>
+#include <span>
 
 #include "transformers/buffer.hpp"
 #include "transformers/detection_function.hpp"
@@ -78,7 +78,7 @@ public:
    * processed
    * @returns the onset detection function sample
    */
-  double calculate_onset_detection_function_sample(std::vector<double> &buffer);
+  double calculate_onset_detection_function_sample(std::span<double> buffer);
   double calculate_onset_detection_function_sample(double *buffer);
 
 private:

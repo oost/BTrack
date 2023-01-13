@@ -19,17 +19,22 @@
  */
 //=======================================================================
 
-#ifndef CircularBuffer_h
-#define CircularBuffer_h
+#ifndef VTRACK__CIRCULAR_BUFFER_H
+#define VTRACK__CIRCULAR_BUFFER_H
 
 #include <vector>
+
+#include "transformers/buffer.hpp"
 
 //=======================================================================
 /** A circular buffer that allows you to add new samples to the end
  * whilst removing them from the beginning. This is implemented in an
  * efficient way which doesn't involve any memory allocation
  */
-template <typename T> class CircularBuffer {
+
+using transformers::Buffer;
+
+template <typename T> class CircularBuffer : public Buffer {
 public:
   /** Constructor */
   CircularBuffer() : write_index_(0) {}
@@ -41,7 +46,7 @@ public:
   }
 
   /** Add a new sample to the end of the buffer */
-  void addSampleToEnd(T v) {
+  void append(T v) {
     buffer_[write_index_] = v;
     write_index_ = (write_index_ + 1) % buffer_.size();
   }
@@ -57,4 +62,4 @@ private:
   int write_index_;
 };
 
-#endif /* CircularBuffer_hpp */
+#endif /* VTRACK__CIRCULAR_BUFFER_H */

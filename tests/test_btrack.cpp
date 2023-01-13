@@ -91,11 +91,11 @@ TEST_CASE("BTrack ", "[BTrack]") {
       int numBeats = 0;
 
       for (int i = 0; i < numSamples; i++) {
-        b.processOnsetDetectionFunctionSample(0.0);
+        b.process_onset_detection_function_sample(0.0);
 
         currentInterval++;
 
-        if (b.beatDueInCurrentFrame()) {
+        if (b.beat_due_in_current_frame()) {
           numBeats++;
 
           if (currentInterval > maxInterval) {
@@ -131,11 +131,11 @@ TEST_CASE("BTrack ", "[BTrack]") {
       }
 
       for (int i = 0; i < numSamples; i++) {
-        b.processOnsetDetectionFunctionSample(odfSamples[i]);
+        b.process_onset_detection_function_sample(odfSamples[i]);
 
         currentInterval++;
 
-        if (b.beatDueInCurrentFrame()) {
+        if (b.beat_due_in_current_frame()) {
           numBeats++;
 
           if (currentInterval > maxInterval) {
@@ -171,11 +171,11 @@ TEST_CASE("BTrack ", "[BTrack]") {
       }
 
       for (int i = 0; i < numSamples; i++) {
-        b.processOnsetDetectionFunctionSample(odfSamples[i]);
+        b.process_onset_detection_function_sample(odfSamples[i]);
 
         currentInterval++;
 
-        if (b.beatDueInCurrentFrame()) {
+        if (b.beat_due_in_current_frame()) {
           numBeats++;
 
           if (currentInterval > maxInterval) {
@@ -218,11 +218,11 @@ TEST_CASE("BTrack ", "[BTrack]") {
       }
 
       for (int i = 0; i < numSamples; i++) {
-        b.processOnsetDetectionFunctionSample(odfSamples[i]);
+        b.process_onset_detection_function_sample(odfSamples[i]);
 
         currentInterval++;
 
-        if (b.beatDueInCurrentFrame()) {
+        if (b.beat_due_in_current_frame()) {
           numBeats++;
 
           if (currentInterval > maxInterval) {

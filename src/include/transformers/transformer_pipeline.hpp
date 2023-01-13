@@ -1,6 +1,7 @@
 #ifndef BTRACK__TRANSFORM__TRANSFORMER_PIPELINE_HPP
 #define BTRACK__TRANSFORM__TRANSFORMER_PIPELINE_HPP
 
+#include <concepts>
 #include <memory>
 
 #include "buffer.hpp"
@@ -15,12 +16,20 @@ public:
   TransformerPipeline()
       : Transformer(), input_buffer_{std::make_shared<IB>()} {}
 
+  TransformerPipeline(std::size_t buffer_size)
+    requires std::derived_from<DataBuffer<typename IB::value_t>, IB>
+      : Transformer(), input_buffer_{std::make_shared<IB>(buffer_size)} {}
+
   Buffer::Ptr output() const override {
     if (final_transform_) {
       return final_transform_->output();
     }
     return nullptr;
   };
+
+  template <class OB> std::shared_ptr<OB> output_cast() const {
+    return std::dynamic_pointer_cast<OB>(output());
+  }
 
   typename IB::Ptr input_buffer() const { return input_buffer_; };
 

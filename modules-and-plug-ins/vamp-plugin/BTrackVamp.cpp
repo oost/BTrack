@@ -183,7 +183,7 @@ BTrackVamp::FeatureSet BTrackVamp::process(const float *const *inputBuffers,
   FeatureSet featureSet;
 
   // if there is a beat in this frame
-  if (b.beatDueInCurrentFrame()) {
+  if (b.beat_due_in_current_frame()) {
     // add a beat to the FeatureSet
     Feature beat;
     beat.hasTimestamp = true;
@@ -194,7 +194,7 @@ BTrackVamp::FeatureSet BTrackVamp::process(const float *const *inputBuffers,
 
   Feature tempo;
   tempo.hasTimestamp = false;
-  tempo.values.push_back(b.getCurrentTempoEstimate());
+  tempo.values.push_back(b.get_current_tempo_estimate());
   featureSet[1].push_back(tempo);
 
   // return the feature set

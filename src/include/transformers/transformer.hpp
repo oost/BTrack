@@ -95,74 +95,11 @@ public:
   }
 };
 
-template <typename I, typename O>
-class BufferedTransformer_old : public Transformer {
+class MultiTransformer : public GenericTransformer<MultiBuffer, MultiBuffer> {
 public:
-  using output_buffer_t = DataBuffer<O>;
-  using output_buffer_ptr = std::shared_ptr<output_buffer_t>;
-  using input_buffer_t = DataBuffer<I>;
-  using input_buffer_ptr = std::shared_ptr<input_buffer_t>;
-
-  BufferedTransformer_old(std::size_t buffer_size) : Transformer() {
-    output_buffer_ = std::make_shared<output_buffer_t>(buffer_size);
+  MultiTransformer() : GenericTransformer<MultiBuffer, MultiBuffer>() {
+    this->output_buffer_ = std::make_shared<MultiBuffer>();
   }
-
-  void add_sink(Ptr sink) override {
-    Transformer::add_sink(sink);
-    sink->set_input(output());
-  }
-
-  Buffer::Ptr output() const override {
-    return std::static_pointer_cast<Buffer>(output_buffer_);
-  };
-
-  output_buffer_ptr output_data() { return output_buffer_; }
-
-  void set_input(Buffer::Ptr input_buffer) override {
-    input_buffer_ = std::dynamic_pointer_cast<input_buffer_t>(input_buffer);
-    if (input_buffer_ == nullptr) {
-      throw std::runtime_error("Chained imcompatible transformers");
-    }
-  }
-
-protected:
-  output_buffer_ptr output_buffer_;
-  input_buffer_ptr input_buffer_;
-};
-
-template <typename I, typename O>
-class ReductionTransformer_old : public Transformer {
-public:
-  using output_buffer_t = SingleValueBuffer<O>;
-  using output_buffer_ptr = std::shared_ptr<output_buffer_t>;
-  using input_buffer_t = DataBuffer<I>;
-  using input_buffer_ptr = std::shared_ptr<input_buffer_t>;
-
-  ReductionTransformer_old(std::size_t buffer_size) : Transformer() {
-    output_buffer_ = std::make_shared<output_buffer_t>(buffer_size);
-  }
-
-  void add_sink(Ptr sink) override {
-    Transformer::add_sink(sink);
-    sink->set_input(output());
-  }
-
-  Buffer::Ptr output() const override {
-    return std::static_pointer_cast<Buffer>(output_buffer_);
-  };
-
-  output_buffer_ptr output_data() { return output_buffer_; }
-
-  void set_input(Buffer::Ptr input_buffer) override {
-    input_buffer_ = std::dynamic_pointer_cast<input_buffer_t>(input_buffer);
-    if (input_buffer_ == nullptr) {
-      throw std::runtime_error("Chained imcompatible transformers");
-    }
-  }
-
-protected:
-  output_buffer_ptr output_buffer_;
-  input_buffer_ptr input_buffer_;
 };
 
 } // namespace transformers

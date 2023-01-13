@@ -13,6 +13,7 @@ namespace transformers {
 class Buffer {
 public:
   using Ptr = std::shared_ptr<Buffer>;
+  using value_t = std::nullptr_t;
 
   virtual ~Buffer() {}
 };
@@ -64,6 +65,10 @@ public:
       return search->second;
     else
       return nullptr;
+  }
+
+  template <class B> std::shared_ptr<B> buffer_cast(const std::string &key) {
+    return std::dynamic_pointer_cast<B>(this->buffer(key));
   }
 
   void add_buffer(const std::string &key, Buffer::Ptr buffer) {

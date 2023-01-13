@@ -52,15 +52,15 @@ void init_btrackpy_orig(py::module_ &m) {
           Calculate the onset detection function
       )pbdoc");
 
-  m.def("trackBeatsNew", &btrack_orig_trackBeats<::BTrack>, "input"_a,
-        "hopSize"_a = btrack_constants::default_hop_size,
+  m.def("trackBeatsNew", &btrack_orig_trackBeats<::BTrackLegacyAdapter>,
+        "input"_a, "hopSize"_a = btrack_constants::default_hop_size,
         "frameSize"_a = btrack_constants::default_frame_size,
         R"pbdoc(
           Track beats from audio
       )pbdoc");
 
   m.def("trackBeatsFromOnsetDFNew",
-        &btrack_orig_trackBeatsFromOnsetDF<::BTrack>, "input"_a,
+        &btrack_orig_trackBeatsFromOnsetDF<::BTrackLegacyAdapter>, "input"_a,
         "hopSize"_a = btrack_constants::default_hop_size,
         "frameSize"_a = btrack_constants::default_frame_size,
         R"pbdoc(

@@ -7,32 +7,29 @@
 
 namespace transformers {
 
-template <typename I>
-class BeatPredictor : public ReductionTransformer<I, MultiBuffer> {
+class BeatPredictor : public MultiTransformer {
 public:
-  const char *beat_period_id = "beat_period";
-  const char *cumulative_score_id_ = "cumulative_score";
-  const char *m0_id_ = "m0";
-  const char *beat_counter_id_ = "beat_counter";
+  static constexpr char const *beat_period_id = "beat_period";
+  static constexpr char const *cumulative_score_id = "cumulative_score";
 
-  BeatPredictor(std::size_t onset_df_buffer_size, double tightness)
-      : ReductionTransformer<I, double>() {
+  static constexpr char const *m0_id = "m0";
+  static constexpr char const *beat_counter_id = "beat_counter";
 
-    onset_df_buffer_size_ = onset_df_buffer_size;
+  BeatPredictor(double tightness) : MultiTransformer() {
     tightness_ = tightness;
 
     // Inputs
     std::shared_ptr<MultiBuffer> input_buffer = std::make_shared<MultiBuffer>();
-    beat_period_ = std::dynamic_pointer_cast<DataBuffer<double>>(
-        input_buffer->buffer(beat_period_id));
-    cumulative_score_ = std::dynamic_pointer_cast<DataBuffer<double>>(
-        input_buffer->buffer(cumulative_score_id_));
+    beat_period_ =
+        input_buffer->buffer_cast<SingleValueBuffer<double>>(beat_period_id);
+    cumulative_score_ =
+        input_buffer->buffer_cast<DataBuffer<double>>(cumulative_score_id);
 
     // Outputs
     m0_ = std::make_shared<SingleValueBuffer<double>>();
     beat_counter_ = std::make_shared<SingleValueBuffer<double>>();
-    this->output_buffer_->add_buffer(m0_id_, m0_);
-    this->output_buffer_->add_buffer(beat_counter_id_, beat_counter_);
+    this->output_buffer_->add_buffer(m0_id, m0_);
+    this->output_buffer_->add_buffer(beat_counter_id, beat_counter_);
   }
 
 protected:
@@ -41,12 +38,13 @@ protected:
     // output_buffer_->value() = sum;
     double beat_period = beat_period_->value();
     int window_size = static_cast<int>(beat_period);
-    std::vector<double> future_cumulative_score(onset_df_buffer_size_ +
+    std::size_t cumulative_score_len = cumulative_score_->size();
+    std::vector<double> future_cumulative_score(cumulative_score_len +
                                                 window_size);
     std::vector<double> w2(window_size);
 
     // copy cumscore to first part of fcumscore
-    for (int i = 0; i < onset_df_buffer_size_; i++) {
+    for (int i = 0; i < cumulative_score_len; i++) {
       future_cumulative_score[i] = (*cumulative_score_)[i];
     }
 
@@ -60,8 +58,8 @@ protected:
 
     // create past window
     v = -2 * beat_period;
-    int start = onset_df_buffer_size_ - round(2 * beat_period);
-    int end = onset_df_buffer_size_ - round(beat_period / 2);
+    int start = cumulative_score_len - round(2 * beat_period);
+    int end = cumulative_score_len - round(beat_period / 2);
     int pastwinsize = end - start + 1;
     std::vector<double> w1(pastwinsize);
 
@@ -74,8 +72,8 @@ protected:
     double max;
     int n;
     double wcumscore;
-    for (int i = onset_df_buffer_size_;
-         i < (onset_df_buffer_size_ + window_size); i++) {
+    for (int i = cumulative_score_len; i < (cumulative_score_len + window_size);
+         i++) {
       start = i - round(2 * beat_period);
       end = i - round(beat_period / 2);
 
@@ -97,23 +95,22 @@ protected:
     max = 0;
     n = 0;
 
-    for (int i = onset_df_buffer_size_;
-         i < (onset_df_buffer_size_ + window_size); i++) {
+    for (int i = cumulative_score_len; i < (cumulative_score_len + window_size);
+         i++) {
       wcumscore = future_cumulative_score[i] * w2[n];
 
       if (wcumscore > max) {
         max = wcumscore;
-        beat_counter_ = n;
+        beat_counter_->value() = n;
       }
 
       n++;
     }
 
     // set next prediction time
-    m0_->value() = beat_counter_ + round(beat_period / 2);
+    m0_->value() = beat_counter_->value() + round(beat_period / 2);
   }
 
-  std::size_t onset_df_buffer_size_;
   double tightness_;
 
   SingleValueBuffer<double>::Ptr beat_period_;

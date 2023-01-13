@@ -22,16 +22,19 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
+#include <span>
+#include <vector>
+
 #include "circular_buffer.h"
 #include "onset_detection_function.hpp"
 #include "transformers/fft_operator.hpp"
 #include "transformers/transformer_pipeline.hpp"
-#include <vector>
 
 using transformers::ComplexDataBuffer;
 using transformers::DataBuffer;
 using transformers::FFTOperator;
 using transformers::MultiBuffer;
+using transformers::SingleValueBuffer;
 
 // #include "btrack_config.h"
 
@@ -77,22 +80,17 @@ public:
    * with.
    */
   void process_audio_frame(std::vector<double> &frame);
-  void processAudioFrame(double *frame);
-
-  /** Add new onset detection function sample to buffer and apply beat tracking
-   * @param sample an onset detection function sample
-   */
-  void processOnsetDetectionFunctionSample(double sample);
+  void process_audio_frame(std::span<double> frame);
 
   //=======================================================================
   /** @returns the current hop size being used by the beat tracker */
   int get_hop_size();
 
   /** @returns true if a beat should occur in the current audio frame */
-  bool beatDueInCurrentFrame();
+  bool beat_due_in_current_frame();
 
   /** @returns the current tempo estimate being used by the beat tracker */
-  double getCurrentTempoEstimate();
+  double get_current_tempo_estimate();
 
   /** @returns the most recent value of the cumulative score function */
   double getLatestCumulativeScoreValue();
@@ -115,23 +113,30 @@ public:
   //=======================================================================
   /** Calculates a beat time in seconds, given the frame number, hop size and
    * sampling frequency. This version uses a long to represent the frame number
-   * @param frameNumber the index of the current frame
+   * @param frame_number the index of the current frame
    * @param hop_size the hop size in audio samples
    * @param fs the sampling frequency in Hz
    * @returns a beat time in seconds
    */
-  static double getBeatTimeInSeconds(long frameNumber, int hop_size, int fs);
+  static double get_beat_time_in_seconds(long frame_number, int hop_size,
+                                         int fs);
 
   /** Calculates a beat time in seconds, given the frame number, hop size and
    * sampling frequency. This version uses an int to represent the frame number
-   * @param frameNumber the index of the current frame
+   * @param frame_number the index of the current frame
    * @param hop_size the hop size in audio samples
    * @param fs the sampling frequency in Hz
    * @returns a beat time in seconds
    */
-  static double getBeatTimeInSeconds(int frameNumber, int hop_size, int fs);
+  static double get_beat_time_in_seconds(int frame_number, int hop_size,
+                                         int fs);
 
-private:
+  /** Add new onset detection function sample to buffer and apply beat tracking
+   * @param sample an onset detection function sample
+   */
+  void process_onset_detection_function_sample(double sample);
+
+protected:
   /** Initialise with hop size and set all array sizes accordingly
    * @param hop_size_ the hop size in audio samples
    */
@@ -180,8 +185,9 @@ private:
   //=======================================================================
   // buffers
 
-  CircularBuffer<double> onsetDF_; /**< to hold onset detection function */
-  CircularBuffer<double> cumulativeScore_; /**< to hold cumulative score */
+  CircularBuffer<double>
+      onset_samples_; /**< to hold onset detection function */
+  CircularBuffer<double> cumulative_score_; /**< to hold cumulative score */
 
   std::vector<double>
       resampledOnsetDF_;    /**< to hold resampled detection function */
@@ -203,32 +209,57 @@ private:
                        cumulative score */
   double alpha_; /**< the mix between the current detection function sample and
                    the cumulative score's "momentum" */
-  double beatPeriod_;     /**< the beat period, in detection function samples */
-  double tempo_;          /**< the tempo in beats per minute */
-  double estimatedTempo_; /**< the current tempo estimation being used by the
+  double beat_period_; /**< the beat period, in detection function samples */
+  double tempo_;       /**< the tempo in beats per minute */
+  double estimated_tempo_; /**< the current tempo estimation being used by the
                             algorithm */
-  double latestCumulativeScoreValue_; /**< holds the latest value of the
+  double latest_cumulative_score_value_; /**< holds the latest value of the
                                         cumulative score function */
-  double tempoToLagFactor_; /**< factor for converting between lag and tempo */
+  double
+      tempo_to_lag_factor_; /**< factor for converting between lag and tempo */
   int m0_; /**< indicates when the next point to predict the next beat is */
-  int beatCounter_; /**< keeps track of when the next beat is - will be zero
+  int beat_counter_; /**< keeps track of when the next beat is - will be zero
                       when the beat is due, and is set elsewhere in the
                       algorithm to be positive once a beat prediction is made */
-  int hop_size_;    /**< the hop size being used by the algorithm */
+  int hop_size_;     /**< the hop size being used by the algorithm */
   int onsetDFBufferSize_; /**< the onset detection function buffer size */
-  bool tempoFixed_; /**< indicates whether the tempo should be fixed or not */
-  bool
-      beatDueInFrame_; /**< indicates whether a beat is due in the current frame
-                        */
+  bool tempo_fixed_; /**< indicates whether the tempo should be fixed or not */
+  bool beat_due_in_frame_; /**< indicates whether a beat is due in the current
+                            * frame
+                            */
   int FFTLengthForACFCalculation_; /**< the FFT length for the auto-correlation
                                      function calculation */
   FFTOperator::Ptr fft_operator_;
   FFTOperator::Ptr fft_operator_backwards_;
   ComplexDataBuffer::Ptr fft_input_buffer_;
 
-  TransformerPipeline<MultiBuffer>::Ptr pipeline_;
+  TransformerPipeline<MultiBuffer>::Ptr beat_predictor_pipeline_;
+
+  SingleValueBuffer<double>::Ptr beat_period_ptr;
+  SingleValueBuffer<double>::Ptr cumulative_score_ptr;
+  SingleValueBuffer<double>::Ptr m0_ptr;
+  SingleValueBuffer<double>::Ptr beat_counter_ptr;
 
   int sampling_rate_;
+};
+
+class BTrackLegacyAdapter : public BTrack {
+public:
+  BTrackLegacyAdapter(int hop_size, int frame_size)
+      : BTrack{hop_size, frame_size} {};
+  void processOnsetDetectionFunctionSample(double sample);
+  void processAudioFrame(double *frame);
+
+  auto beatDueInCurrentFrame() { return beat_due_in_current_frame(); }
+
+  auto getCurrentTempoEstimate() { return get_current_tempo_estimate(); }
+
+  static auto getBeatTimeInSeconds(int frameNumber, int hop_size, int fs) {
+    return get_beat_time_in_seconds(frameNumber, hop_size, fs);
+  }
+  static auto getBeatTimeInSeconds(long frameNumber, int hop_size, int fs) {
+    return get_beat_time_in_seconds(frameNumber, hop_size, fs);
+  }
 };
 
 #endif

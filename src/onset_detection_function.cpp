@@ -56,9 +56,10 @@ OnsetDetectionFunction::OnsetDetectionFunction(
 
   // buffer_ = std::make_shared<RealDataBuffer>(hop_size);
 
-  pipeline_ = std::make_shared<TransformerPipeline<DataBuffer<double>>>();
+  pipeline_ =
+      std::make_shared<TransformerPipeline<DataBuffer<double>>>(hop_size);
   buffer_ = pipeline_->input_buffer();
-  buffer_->resize(hop_size);
+  //   buffer_->resize(hop_size);
 
   Transformer::Ptr shifter =
       std::make_shared<ShiftTransformer<double>>(frame_size);
@@ -107,15 +108,14 @@ double OnsetDetectionFunction::calculate_onset_detection_function_sample(
 }
 
 double OnsetDetectionFunction::calculate_onset_detection_function_sample(
-    std::vector<double> &input) {
+    std::span<double> input) {
 
   std::copy(input.begin(), input.end(), buffer_->data().begin());
 
   pipeline_->execute();
 
-  SingleValueBuffer<double> &output =
-      *std::dynamic_pointer_cast<SingleValueBuffer<double>>(
-          pipeline_->output());
+  SingleValueBuffer<double>::Ptr output =
+      pipeline_->output_cast<SingleValueBuffer<double>>();
 
-  return output.value();
+  return output->value();
 }
