@@ -45,11 +45,10 @@ protected:
     double beat_period = beat_period_->value();
     int window_size = static_cast<int>(beat_period);
     std::size_t cumulative_score_len = cumulative_score_->size();
-    std::vector<double> future_cumulative_score(cumulative_score_len +
-                                                window_size);
+    std::vector<double> future_cumulative_score(
+        cumulative_score_len + window_size, 0.0);
     std::vector<double> w2(window_size);
 
-    // copy cumscore to first part of fcumscore
     for (int i = 0; i < cumulative_score_len; i++) {
       future_cumulative_score[i] = (*cumulative_score_)[i];
     }

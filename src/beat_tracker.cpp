@@ -78,18 +78,20 @@ void BTrack::initialize_state_variables() {
   odf_sample_ptr = std::make_shared<SingleValueBuffer<double>>();
   estimated_tempo_ptr = std::make_shared<SingleValueBuffer<double>>(120.0);
 
-  // initialise df_buffer to zeros
-  for (int i = 0; i < onset_df_buffer_len_; i++) {
-    (*onset_samples_)[i] = 0;
-
-    if ((i % ((int)round(beat_period_))) == 0) {
-      (*onset_samples_)[i] = 1;
-    }
-  }
-
   // Set initial values for m0 and beat_counter
   m0_ptr->set_value(10);
   beat_counter_ptr->set_value(-1);
+  beat_period_ptr->set_value(beat_period_from_tempo(tempo_));
+
+  // initialise df_buffer to zeros
+  int period = std::round(beat_period_ptr->value());
+  for (int i = 0; i < onset_df_buffer_len_; i++) {
+    (*onset_samples_)[i] = 0;
+
+    if ((i % period) == 0) {
+      (*onset_samples_)[i] = 1;
+    }
+  }
 }
 
 void BTrack::create_pipelines() {
@@ -167,13 +169,13 @@ void BTrack::create_tempo_calculator_pipeline() {
   Transformer::Ptr adaptive_threshold_onset_ =
       std::make_shared<AdaptiveThreshold>(resample_len);
 
-  Transformer::Ptr balanced_acf_ = std::make_shared<BalancedACF>(acf_fft_len_);
+  Transformer::Ptr balanced_acf_ = std::make_shared<BalancedACF>(resample_len);
 
   Transformer::Ptr comb_filter_bank_ =
-      std::make_shared<CombFilterBank>(acf_fft_len_);
+      std::make_shared<CombFilterBank>(resample_len);
 
   Transformer::Ptr adaptive_threshold_acf_ =
-      std::make_shared<AdaptiveThreshold>(acf_fft_len_);
+      std::make_shared<AdaptiveThreshold>(resample_len);
 
   tempo_calculator_ = std::make_shared<TempoCalculator>(
       sampling_rate_, hop_size_, tempo_fixed_);
@@ -185,7 +187,7 @@ void BTrack::create_tempo_calculator_pipeline() {
   tempo_calculator_pipeline_->set_initial_transform(resampler_);
   tempo_calculator_pipeline_->set_input(onset_samples_);
 
-  MultiBuffer::Ptr out = beat_predictor_pipeline_->output_cast<MultiBuffer>();
+  MultiBuffer::Ptr out = tempo_calculator_pipeline_->output_cast<MultiBuffer>();
 
   beat_period_out = out->buffer_cast<SingleValueBuffer<double>>(
       transformers::constants::beat_period_id);
@@ -225,8 +227,6 @@ double BTrack::get_beat_time_in_seconds(int frame_number, int hop_size,
 void BTrack::set_hop_size(int hop_size) {
   hop_size_ = hop_size;
   onset_df_buffer_len_ = (512 * 512) / hop_size; // calculate df buffer size
-
-  beat_period_ = beat_period_from_tempo(tempo_);
 
   initialize_state_variables();
   create_pipelines();

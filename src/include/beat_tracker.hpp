@@ -152,6 +152,7 @@ protected:
   void set_hop_size(int hop_size);
 
   int beat_period_from_tempo(double tempo);
+
   //=======================================================================
 
   /** An OnsetDetectionFunction instance for calculating onset detection
@@ -159,65 +160,72 @@ protected:
   OnsetDetectionFunction::Ptr odf_;
 
   //=======================================================================
-  // buffers
-
-  CircularBuffer<double>::Ptr
-      onset_samples_; /**< to hold onset detection function */
-  CircularBuffer<double>::Ptr
-      cumulative_score_ptr; /**< to hold cumulative score */
-
-  // std::vector<double>
-  //     resampledOnsetDF_;    /**< to hold resampled detection function */
-  // std::vector<double> acf_; /**<  to hold autocorrelation function */
-  // std::vector<double> combFilterBankOutput_; /**<  to hold comb filter output
-  // */
-
-  //=======================================================================
   // parameters
 
-  double tightness_; /**< the tightness of the weighting used to calculate
-                       cumulative score */
-  double alpha_; /**< the mix between the current detection function sample and
-                   the cumulative score's "momentum" */
-  double beat_period_; /**< the beat period, in detection function samples */
-  double tempo_;       /**< the tempo in beats per minute */
+  /**< the tightness of the weighting used to calculate cumulative score */
+  double tightness_;
+  /**< the mix between the current detection function sample and the cumulative
+   * score's "momentum" */
+  double alpha_;
 
-  // int m0_; /**< indicates when the next point to predict the next beat is */
-  // int beat_counter_; /**< keeps track of when the next beat is - will be zero
-  //                     when the beat is due, and is set elsewhere in the
-  //                     algorithm to be positive once a beat prediction is made
-  //                     */
-  int hop_size_; /**< the hop size being used by the algorithm */
-  std::size_t
-      onset_df_buffer_len_; /**< the onset detection function buffer size */
-  bool tempo_fixed_; /**< indicates whether the tempo should be fixed or not */
-  bool beat_due_in_frame_; /**< indicates whether a beat is due in the current
-                            * frame
-                            */
-  int acf_fft_len_;        /**< the FFT length for the auto-correlation
-                                            function calculation */
+  double beat_period_;
+  /**< the tempo in beats per minute */
+  double tempo_;
+  int sampling_rate_;
+
+  /**< the hop size being used by the algorithm */
+  int hop_size_;
+
+  /**< the onset detection function buffer size */
+  std::size_t onset_df_buffer_len_;
+
+  /**< indicates whether the tempo should be fixed or not */
+  bool tempo_fixed_;
+
+  /**< indicates whether a beat is due in the current frame */
+  bool beat_due_in_frame_;
 
   Transformer::Ptr tempo_calculator_;
 
+  // Pipelines
   TransformerPipeline::Ptr beat_predictor_pipeline_;
   TransformerPipeline::Ptr tempo_calculator_pipeline_;
   TransformerPipeline::Ptr score_accumulator_pipeline_;
 
+  /**
+   * State variables
+   *
+   */
+
+  /** the beat period, in detection function samples */
   SingleValueBuffer<double>::Ptr beat_period_ptr;
   // CircularBuffer<double>::Ptr cumulative_score_ptr;
+  /**< indicates when the next point to predict the next beat is */
   SingleValueBuffer<int>::Ptr m0_ptr;
+  /**< keeps track of when the next beat is - will be zero when the beat is due,
+   * and is set elsewhere in the algorithm to be positive once a beat prediction
+   * is made */
   SingleValueBuffer<int>::Ptr beat_counter_ptr;
+
   SingleValueBuffer<double>::Ptr odf_sample_ptr;
 
   /**< the current tempo estimation being used by the algorithm */
   SingleValueBuffer<double>::Ptr estimated_tempo_ptr;
   MultiBuffer::Ptr input_buffer_ptr;
 
+  /**
+   * Outputs
+   *
+   */
   SingleValueBuffer<int>::Ptr beat_counter_out;
   SingleValueBuffer<int>::Ptr m0_out;
   SingleValueBuffer<double>::Ptr beat_period_out;
   SingleValueBuffer<double>::Ptr estimated_tempo_out;
-  int sampling_rate_;
+
+  /**< to hold onset detection function */
+  CircularBuffer<double>::Ptr onset_samples_;
+  /**< to hold cumulative score */
+  CircularBuffer<double>::Ptr cumulative_score_ptr;
 };
 
 class BTrackLegacyAdapter : public BTrack {
