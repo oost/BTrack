@@ -669,8 +669,9 @@ void BTrack::updateCumulativeScore(double odfSample) {
 //=======================================================================
 void BTrack::predictBeat() {
   int windowSize = (int)beatPeriod;
-  double futureCumulativeScore[onsetDFBufferSize + windowSize];
-  double w2[windowSize];
+  // double futureCumulativeScore[onsetDFBufferSize + windowSize];
+  std::vector<double> futureCumulativeScore(onsetDFBufferSize + windowSize);
+  std::vector<double> w2(windowSize);
 
   // copy cumscore to first part of fcumscore
   for (int i = 0; i < onsetDFBufferSize; i++) {
@@ -690,7 +691,7 @@ void BTrack::predictBeat() {
   int start = onsetDFBufferSize - round(2 * beatPeriod);
   int end = onsetDFBufferSize - round(beatPeriod / 2);
   int pastwinsize = end - start + 1;
-  double w1[pastwinsize];
+  std::vector<double> w1(pastwinsize);
 
   for (int i = 0; i < pastwinsize; i++) {
     w1[i] = exp((-1 * pow(tightness * log(-v / beatPeriod), 2)) / 2);

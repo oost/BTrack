@@ -151,10 +151,10 @@ void BTrack::create_beat_predictor_pipeline() {
 
   MultiBuffer::Ptr out = beat_predictor_pipeline_->output_cast<MultiBuffer>();
 
-  beat_counter_out =
-      out->buffer_cast<SingleValueBuffer<int>>(transformers::constants::m0_id);
-  m0_out = out->buffer_cast<SingleValueBuffer<int>>(
+  beat_counter_out = out->buffer_cast<SingleValueBuffer<int>>(
       transformers::constants::beat_counter_id);
+  m0_out =
+      out->buffer_cast<SingleValueBuffer<int>>(transformers::constants::m0_id);
 }
 
 /**
