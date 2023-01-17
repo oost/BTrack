@@ -4,54 +4,70 @@
 #include <concepts>
 #include <memory>
 
-#include "buffer.hpp"
-#include "transformer.hpp"
+#include "buffers/all.h"
+#include "transformers/all.h"
 
 namespace transformers {
 
-template <BufferObject IB> class TransformerPipeline : public Transformer {
+class TransformerPipeline {
 public:
   using Ptr = std::shared_ptr<TransformerPipeline>;
 
-  TransformerPipeline()
-      : Transformer(), input_buffer_{std::make_shared<IB>()} {}
+  TransformerPipeline() {}
 
-  TransformerPipeline(std::size_t buffer_size)
-    requires std::derived_from<DataBuffer<typename IB::value_t>, IB>
-      : Transformer(), input_buffer_{std::make_shared<IB>(buffer_size)} {}
-
-  Buffer::Ptr output() const override {
+  Buffer::Ptr output() const {
     if (final_transform_) {
       return final_transform_->output();
     }
     return nullptr;
   };
 
-  template <class OB> std::shared_ptr<OB> output_cast() const {
-    return std::dynamic_pointer_cast<OB>(output());
+  void set_input(Buffer::Ptr input) {
+    input_buffer_ = input;
+    initial_transform_->set_input(input);
   }
 
-  typename IB::Ptr input_buffer() const { return input_buffer_; };
-
-  void set_input(Buffer::Ptr input_buffer) override {
-    input_buffer_ = std::dynamic_pointer_cast<IB>(input_buffer);
-    if (input_buffer_ == nullptr) {
-      throw std::runtime_error("Chained imcompatible transformers");
-    }
+  template <class OB> typename OB::Ptr output_cast() const {
+    return std::dynamic_pointer_cast<OB>(final_transform_->output());
   }
 
-  void set_initial_transform(Transformer::Ptr initial_transform) {
-    initial_transform_ = initial_transform;
-    initial_transform_->set_input(input_buffer_);
+  template <class IB> typename IB::Ptr input_cast() const {
+    return std::dynamic_pointer_cast<IB>(input_buffer_);
   }
-  void set_final_transform(Transformer::Ptr final_transform) {
-    final_transform_ = final_transform;
+
+  template <class TP>
+  void set_initial_transform(TP initial_transform)
+    requires std::derived_from<typename TP::element_type, Transformer>
+  {
+    initial_transform_ =
+        std::static_pointer_cast<Transformer>(initial_transform);
+
+    final_transform_ = get_final_transformer(initial_transform);
   }
+
+  void execute() { initial_transform_->execute(); }
 
 private:
-  void process() override { initial_transform_->execute(); }
+  Transformer::Ptr get_final_transformer(Transformer::Ptr current) {
+    if (!(current->sinks_.size())) {
+      return current;
+    }
+    Transformer::Ptr final = current;
+    // DFS to check that there is only one final transformer
+    for (auto next : current->sinks_) {
+      auto next_final = get_final_transformer(next);
 
-  typename IB::Ptr input_buffer_;
+      // If final has already been set then there is a sibling. Do we have the
+      // same final?
+      if ((final != current) and (next_final != final)) {
+        throw std::runtime_error("Pipeline with multiple final transforms");
+      }
+      final = next_final;
+    }
+    return final;
+  }
+
+  Buffer::Ptr input_buffer_;
   Transformer::Ptr initial_transform_;
   Transformer::Ptr final_transform_;
 };

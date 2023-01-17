@@ -4,6 +4,7 @@
 #include <numbers>
 #include <utility>
 
+#include "transformers/buffers/all.h"
 #include "transformers/fft_operator.hpp"
 
 #ifdef USE_KISS_FFT
@@ -36,13 +37,13 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
       FFTOperator::create_operator(frame_size, false);
 
   SECTION("Input and output buffers are created and have the correct size") {
-    ComplexDataBuffer &output = *fft_operator->output_data();
+    ComplexArrayBuffer &output = *fft_operator->output_cast();
     REQUIRE(output.size() == frame_size);
     REQUIRE(sizeof(output[0]) == 2 * sizeof(double));
   }
 
   SECTION("reinterpret cast works as expected") {
-    ComplexDataBuffer input(2);
+    ComplexArrayBuffer input(2);
     input[0] = FFTOperator::complex_t(1.0, 2.0);
     input[1] = FFTOperator::complex_t(3.0, 4.0);
 
@@ -64,9 +65,9 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
   }
 
   SECTION("Test impulse function") {
-    ComplexDataBuffer::Ptr input_buffer =
-        std::make_shared<ComplexDataBuffer>(frame_size);
-    ComplexDataBuffer::Ptr output = fft_operator->output_data();
+    ComplexArrayBuffer::Ptr input_buffer =
+        std::make_shared<ComplexArrayBuffer>(frame_size);
+    ComplexArrayBuffer::Ptr output = fft_operator->output_cast();
 
     std::fill(input_buffer->data().begin(), input_buffer->data().end(),
               std::complex<double>(0.0));
@@ -84,9 +85,9 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
   SECTION("Edge cases") {
     auto freq = GENERATE(range(1, 7));
     SECTION("Test exp function") {
-      ComplexDataBuffer::Ptr input_buffer =
-          std::make_shared<ComplexDataBuffer>(frame_size);
-      ComplexDataBuffer::Ptr output = fft_operator->output_data();
+      ComplexArrayBuffer::Ptr input_buffer =
+          std::make_shared<ComplexArrayBuffer>(frame_size);
+      ComplexArrayBuffer::Ptr output = fft_operator->output_cast();
 
       for (int i = 0; i < frame_size; i++) {
         (*input_buffer)[i] =
@@ -111,9 +112,9 @@ TEST_CASE("FFTOperator ", "[FFTOperator]") {
     }
 
     SECTION("Test shifted exp function") {
-      ComplexDataBuffer::Ptr input_buffer =
-          std::make_shared<ComplexDataBuffer>(frame_size);
-      ComplexDataBuffer::Ptr output = fft_operator->output_data();
+      ComplexArrayBuffer::Ptr input_buffer =
+          std::make_shared<ComplexArrayBuffer>(frame_size);
+      ComplexArrayBuffer::Ptr output = fft_operator->output_cast();
 
       fft_operator->set_input(input_buffer);
 

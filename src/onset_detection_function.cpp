@@ -25,12 +25,13 @@
 #include <numbers>
 #include <numeric>
 
-#include "onset_detection_function.hpp"
+#include "onset_detection_function.h"
 #include "transformers/fft_operator.hpp"
 #include "transformers/manipulation/all.hpp"
 #include "transformers/onset_detection/all.hpp"
 #include "transformers/window/all.hpp"
 
+using transformers::Buffer;
 using transformers::FFTOperator;
 using transformers::MapTransformer;
 using transformers::ShiftTransformer;
@@ -54,37 +55,33 @@ OnsetDetectionFunction::OnsetDetectionFunction(
   hop_size_ = hop_size;     // set hop_size
   frame_size_ = frame_size; // set frame_size
 
-  // buffer_ = std::make_shared<RealDataBuffer>(hop_size);
+  // Create pipeline
+  pipeline_ = std::make_shared<TransformerPipeline>();
 
-  pipeline_ =
-      std::make_shared<TransformerPipeline<DataBuffer<double>>>(hop_size);
-  buffer_ = pipeline_->input_buffer();
-  //   buffer_->resize(hop_size);
+  // Create buffer
+  buffer_ = std::make_shared<RealArrayBuffer>(hop_size);
 
   Transformer::Ptr shifter =
       std::make_shared<ShiftTransformer<double>>(frame_size);
-  pipeline_->set_initial_transform(shifter);
-
   Transformer::Ptr window = createWindowTransformer(window_type, frame_size);
-  shifter->add_sink(window);
-
   Transformer::Ptr swapper =
       std::make_shared<SwapTransformer<double>>(frame_size);
-  window->add_sink(swapper);
-
   Transformer::Ptr mapper =
       std::make_shared<MapTransformer<double, std::complex<double>>>(
           frame_size, [](double v) { return std::complex<double>(v, 0); });
-  swapper->add_sink(mapper);
 
-  FFTOperator::Ptr fft = FFTOperator::create_operator(frame_size, false);
-  mapper->add_sink(std::static_pointer_cast<Transformer>(fft));
-
+  Transformer::Ptr fft = FFTOperator::create_operator(frame_size, false);
   Transformer::Ptr odf =
       create_detection_function(onset_detection_function_type, frame_size);
+
+  shifter->add_sink(window);
+  window->add_sink(swapper);
+  swapper->add_sink(mapper);
+  mapper->add_sink(fft);
   fft->add_sink(odf);
 
-  pipeline_->set_final_transform(odf);
+  pipeline_->set_initial_transform(shifter);
+  pipeline_->set_input(buffer_);
 }
 
 //=======================================================================

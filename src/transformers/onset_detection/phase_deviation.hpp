@@ -6,7 +6,7 @@
 #include <span>
 #include <vector>
 
-#include "../utils.hpp"
+#include "../utils.h"
 #include "transformers/detection_function.hpp"
 
 namespace transformers {
@@ -55,7 +55,7 @@ protected:
       prev_phase_[i] = phase_[i];
     }
 
-    output_buffer_->value() = sum;
+    output_buffer_->set_value(sum);
   }
 
   std::vector<double> mag_spec_;

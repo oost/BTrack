@@ -19,20 +19,20 @@
  */
 //=======================================================================
 
-#ifndef __ONSETDETECTIONFUNCTION_H
-#define __ONSETDETECTIONFUNCTION_H
+#ifndef BTRACK__SRC__INCLUDE__ONSET_DETECTION_FUNCTION__H_
+#define BTRACK__SRC__INCLUDE__ONSET_DETECTION_FUNCTION__H_
 
 #include <memory>
 #include <span>
 
-#include "transformers/buffer.hpp"
+#include "transformers/buffers/all.h"
 #include "transformers/detection_function.hpp"
 #include "transformers/transformer_pipeline.hpp"
 #include "transformers/window_function.hpp"
 
-using transformers::DataBuffer;
+using transformers::ArrayBuffer;
 using transformers::DetectionFunctionType;
-using transformers::RealDataBuffer;
+using transformers::RealArrayBuffer;
 using transformers::TransformerPipeline;
 using transformers::WindowType;
 
@@ -86,10 +86,10 @@ private:
   int hop_size_;   /**< audio hop_size */
 
   //=======================================================================
-  TransformerPipeline<DataBuffer<double>>::Ptr pipeline_;
+  TransformerPipeline::Ptr pipeline_;
 
   //=======================================================================
-  std::shared_ptr<RealDataBuffer> buffer_;
+  std::shared_ptr<RealArrayBuffer> buffer_;
 };
 
-#endif
+#endif // BTRACK__SRC__INCLUDE__ONSET_DETECTION_FUNCTION__H_

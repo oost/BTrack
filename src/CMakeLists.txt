@@ -34,8 +34,14 @@ endif()
 message("FFT_OPERATOR_SOURCES = ${FFT_OPERATOR_SOURCES}")
 message("BTRACK_COMPILE_DEFINITIONS = ${BTRACK_COMPILE_DEFINITIONS}")
 
-target_sources(btrack PRIVATE ${FFT_OPERATOR_SOURCES})
-target_link_libraries(btrack PUBLIC ${FFT_LIBRARY} SampleRate::samplerate)
+target_sources(btrack PRIVATE ${FFT_OPERATOR_SOURCES} transformers.cpp)
+target_link_libraries(btrack PUBLIC 
+  ${FFT_LIBRARY} 
+  SampleRate::samplerate   
+  fmt::fmt
+  spdlog::spdlog 
+  range-v3 range-v3-meta range-v3::meta range-v3-concepts
+)
 target_compile_definitions(btrack PUBLIC ${BTRACK_COMPILE_DEFINITIONS})
 target_include_directories(btrack PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 

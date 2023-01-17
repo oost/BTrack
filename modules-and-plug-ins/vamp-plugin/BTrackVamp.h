@@ -52,7 +52,7 @@ public:
 protected:
   // plugin-specific data and methods go here
 
-  BTrack b;
+  BTrack::Ptr b;
 
   int m_stepSize;
   int m_blockSize;

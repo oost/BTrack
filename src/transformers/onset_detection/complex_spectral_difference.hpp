@@ -52,7 +52,7 @@ protected:
       prevMagSpec_[i] = magSpec_[i];
     }
 
-    this->output_buffer_->value() = sum;
+    this->output_buffer_->set_value(sum);
   }
 
   std::vector<double> magSpec_;

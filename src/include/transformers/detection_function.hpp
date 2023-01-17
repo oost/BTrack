@@ -4,7 +4,7 @@
 #include <complex>
 #include <memory>
 
-#include "transformers/transformer.hpp"
+#include "transformers/transformers/all.h"
 
 namespace transformers {
 

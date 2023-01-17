@@ -1,5 +1,5 @@
 #include "beat_tracker.hpp"
-#include "onset_detection_function.hpp"
+#include "onset_detection_function.h"
 
 #include "btrack_constants.hpp"
 #include "btrackpy.hpp"

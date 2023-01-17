@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include "transformers/buffer.hpp"
+#include "buffer.h"
 
 //=======================================================================
 /** A circular buffer that allows you to add new samples to the end
@@ -32,17 +32,20 @@
  * efficient way which doesn't involve any memory allocation
  */
 
-using transformers::Buffer;
+namespace transformers {
 
 template <typename T> class CircularBuffer : public Buffer {
 public:
+  using Ptr = std::shared_ptr<CircularBuffer>;
+
   /** Constructor */
-  CircularBuffer() : write_index_(0) {}
+  CircularBuffer() {}
+  CircularBuffer(std::size_t len) : buffer_(len) {}
 
   /** Access the ith element in the buffer */
-  T &operator[](int i) {
-    int index = (i + write_index_) % buffer_.size();
-    return buffer_[index];
+  T &operator[](int i) { return buffer_[(i + write_index_) % buffer_.size()]; }
+  const T &operator[](int i) const {
+    return buffer_[(i + write_index_) % buffer_.size()];
   }
 
   /** Add a new sample to the end of the buffer */
@@ -57,9 +60,13 @@ public:
     write_index_ = 0;
   }
 
+  std::size_t size() const { return buffer_.size(); }
+
 private:
   std::vector<T> buffer_;
-  int write_index_;
+  int write_index_ = 0;
 };
+
+} // namespace transformers
 
 #endif /* VTRACK__CIRCULAR_BUFFER_H */

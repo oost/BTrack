@@ -4,7 +4,7 @@
 #include <complex>
 #include <span>
 
-#include "transformers/transformer.hpp"
+#include "transformers/transformers/all.h"
 
 namespace transformers {
 

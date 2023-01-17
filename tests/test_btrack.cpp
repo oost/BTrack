@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "beat_tracker.hpp"
-#include "utils.hpp"
+#include "utils.h"
 
 using Catch::Matchers::WithinAbs;
 using Catch::Matchers::WithinULP;

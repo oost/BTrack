@@ -7,6 +7,10 @@ set (CMAKE_CXX_STANDARD 20)
 
 option(ENABLE_FFTW OFF)
 
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
+
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(modules-and-plug-ins)

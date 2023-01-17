@@ -25,16 +25,19 @@
 #include <span>
 #include <vector>
 
-#include "circular_buffer.h"
-#include "onset_detection_function.hpp"
+#include "onset_detection_function.h"
+#include "transformers/buffers/all.h"
 #include "transformers/fft_operator.hpp"
 #include "transformers/transformer_pipeline.hpp"
+#include "transformers/transformers/all.h"
 
-using transformers::ComplexDataBuffer;
-using transformers::DataBuffer;
+using transformers::ArrayBuffer;
+using transformers::CircularBuffer;
+using transformers::ComplexArrayBuffer;
 using transformers::FFTOperator;
 using transformers::MultiBuffer;
 using transformers::SingleValueBuffer;
+using transformers::Transformer;
 
 // #include "btrack_config.h"
 
@@ -48,14 +51,12 @@ using transformers::SingleValueBuffer;
 class BTrack {
 
 public:
-  //=======================================================================
-  /** Constructor assuming hop size of 512 and frame size of 1024 */
-  BTrack();
+  using Ptr = std::unique_ptr<BTrack>;
 
   /** Constructor assuming frame size will be double the hopSize
    * @param hop_size the hop size in audio samples
    */
-  BTrack(int hop_size);
+  BTrack(int hop_size = 512);
 
   /** Constructor taking both hop_size and frame_size
    * @param hop_size the hop size in audio samples
@@ -64,14 +65,7 @@ public:
   BTrack(int hop_size, int frame_size, int sampling_rate = 44100);
 
   /** Destructor */
-  ~BTrack();
-
-  //=======================================================================
-  /** Updates the hop and frame size used by the beat tracker
-   * @param hop_size the hop size in audio samples
-   * @param frame_size the frame size in audio samples
-   */
-  void updateHopAndFrameSize(int hop_size, int frame_size);
+  ~BTrack() {}
 
   //=======================================================================
   /** Process a single audio frame
@@ -92,23 +86,20 @@ public:
   /** @returns the current tempo estimate being used by the beat tracker */
   double get_current_tempo_estimate();
 
-  /** @returns the most recent value of the cumulative score function */
-  double getLatestCumulativeScoreValue();
-
   //=======================================================================
   /** Set the tempo of the beat tracker
    * @param tempo the tempo in beats per minute (bpm)
    */
-  void setTempo(double tempo);
+  void set_tempo(double tempo);
 
   /** Fix tempo to roughly around some value, so that the algorithm will only
    * try to track tempi around the given tempo
    * @param tempo the tempo in beats per minute (bpm)
    */
-  void fixTempo(double tempo);
+  void fix_tempo(double tempo);
 
   /** Tell the algorithm to not fix the tempo anymore */
-  void doNotFixTempo();
+  void do_not_fix_tempo();
 
   //=======================================================================
   /** Calculates a beat time in seconds, given the frame number, hop size and
@@ -137,45 +128,30 @@ public:
   void process_onset_detection_function_sample(double sample);
 
 protected:
-  /** Initialise with hop size and set all array sizes accordingly
-   * @param hop_size_ the hop size in audio samples
+  /**
+   * @brief
    */
+  void initialize_state_variables();
+
+  /**
+   * @brief
+   *
+   */
+  void create_beat_predictor_pipeline();
+  void create_tempo_calculator_pipeline();
+  void create_score_accumulator_pipeline();
+
+  void create_pipelines();
+
+  /**
+   * @brief Set the hop size object
+   * Initialise with hop size and set all array sizes accordingly
+   * @param hop_size the hop size in audio samples
+   */
+
   void set_hop_size(int hop_size);
 
-  /** Resamples the onset detection function from an arbitrary number of samples
-   * to 512 */
-  void resampleOnsetDetectionFunction();
-
-  /** Updates the cumulative score function with a new onset detection function
-   * sample
-   * @param odfSample an onset detection function sample
-   */
-  void updateCumulativeScore(double odfSample);
-
-  /** Predicts the next beat, based upon the internal program state */
-  void predictBeat();
-
-  /** Calculates the current tempo expressed as the beat period in detection
-   * function samples */
-  void calculateTempo();
-
-  /** Calculates an adaptive threshold which is used to remove low level energy
-   * from detection function and emphasise peaks
-   * @param x a pointer to an array containing onset detection function samples
-   * @param N the length of the array, x
-   */
-  void adaptiveThreshold(std::vector<double> &x);
-
-  /** Calculates the balanced autocorrelation of the smoothed onset detection
-   * function
-   * @param onsetDetectionFunction a pointer to an array containing the onset
-   * detection function
-   */
-  void calculateBalancedACF(const std::vector<double> &onsetDetectionFunction);
-
-  /** Calculates the output of the comb filter bank */
-  void calculateOutputOfCombFilterBank();
-
+  int beat_period_from_tempo(double tempo);
   //=======================================================================
 
   /** An OnsetDetectionFunction instance for calculating onset detection
@@ -185,22 +161,16 @@ protected:
   //=======================================================================
   // buffers
 
-  CircularBuffer<double>
+  CircularBuffer<double>::Ptr
       onset_samples_; /**< to hold onset detection function */
-  CircularBuffer<double> cumulative_score_; /**< to hold cumulative score */
+  CircularBuffer<double>::Ptr
+      cumulative_score_ptr; /**< to hold cumulative score */
 
-  std::vector<double>
-      resampledOnsetDF_;    /**< to hold resampled detection function */
-  std::vector<double> acf_; /**<  to hold autocorrelation function */
-  std::vector<double> weightingVector_;      /**<  to hold weighting vector */
-  std::vector<double> combFilterBankOutput_; /**<  to hold comb filter output */
-  double tempoObservationVector_[41]; /**<  to hold tempo version of comb filter
-                                        output */
-  std::vector<double> delta_;     /**<  to hold final tempo candidate array */
-  std::vector<double> prevDelta_; /**<  previous delta */
-  std::vector<double>
-      prevDeltaFixed_; /**<  fixed tempo version of previous delta */
-  double tempoTransitionMatrix_[41][41]; /**<  tempo transition matrix */
+  // std::vector<double>
+  //     resampledOnsetDF_;    /**< to hold resampled detection function */
+  // std::vector<double> acf_; /**<  to hold autocorrelation function */
+  // std::vector<double> combFilterBankOutput_; /**<  to hold comb filter output
+  // */
 
   //=======================================================================
   // parameters
@@ -211,35 +181,42 @@ protected:
                    the cumulative score's "momentum" */
   double beat_period_; /**< the beat period, in detection function samples */
   double tempo_;       /**< the tempo in beats per minute */
-  double estimated_tempo_; /**< the current tempo estimation being used by the
-                            algorithm */
-  double latest_cumulative_score_value_; /**< holds the latest value of the
-                                        cumulative score function */
-  double
-      tempo_to_lag_factor_; /**< factor for converting between lag and tempo */
-  int m0_; /**< indicates when the next point to predict the next beat is */
-  int beat_counter_; /**< keeps track of when the next beat is - will be zero
-                      when the beat is due, and is set elsewhere in the
-                      algorithm to be positive once a beat prediction is made */
-  int hop_size_;     /**< the hop size being used by the algorithm */
-  int onsetDFBufferSize_; /**< the onset detection function buffer size */
+
+  // int m0_; /**< indicates when the next point to predict the next beat is */
+  // int beat_counter_; /**< keeps track of when the next beat is - will be zero
+  //                     when the beat is due, and is set elsewhere in the
+  //                     algorithm to be positive once a beat prediction is made
+  //                     */
+  int hop_size_; /**< the hop size being used by the algorithm */
+  std::size_t
+      onset_df_buffer_len_; /**< the onset detection function buffer size */
   bool tempo_fixed_; /**< indicates whether the tempo should be fixed or not */
   bool beat_due_in_frame_; /**< indicates whether a beat is due in the current
                             * frame
                             */
-  int FFTLengthForACFCalculation_; /**< the FFT length for the auto-correlation
-                                     function calculation */
-  FFTOperator::Ptr fft_operator_;
-  FFTOperator::Ptr fft_operator_backwards_;
-  ComplexDataBuffer::Ptr fft_input_buffer_;
+  int acf_fft_len_;        /**< the FFT length for the auto-correlation
+                                            function calculation */
 
-  TransformerPipeline<MultiBuffer>::Ptr beat_predictor_pipeline_;
+  Transformer::Ptr tempo_calculator_;
+
+  TransformerPipeline::Ptr beat_predictor_pipeline_;
+  TransformerPipeline::Ptr tempo_calculator_pipeline_;
+  TransformerPipeline::Ptr score_accumulator_pipeline_;
 
   SingleValueBuffer<double>::Ptr beat_period_ptr;
-  SingleValueBuffer<double>::Ptr cumulative_score_ptr;
-  SingleValueBuffer<double>::Ptr m0_ptr;
-  SingleValueBuffer<double>::Ptr beat_counter_ptr;
+  // CircularBuffer<double>::Ptr cumulative_score_ptr;
+  SingleValueBuffer<int>::Ptr m0_ptr;
+  SingleValueBuffer<int>::Ptr beat_counter_ptr;
+  SingleValueBuffer<double>::Ptr odf_sample_ptr;
 
+  /**< the current tempo estimation being used by the algorithm */
+  SingleValueBuffer<double>::Ptr estimated_tempo_ptr;
+  MultiBuffer::Ptr input_buffer_ptr;
+
+  SingleValueBuffer<int>::Ptr beat_counter_out;
+  SingleValueBuffer<int>::Ptr m0_out;
+  SingleValueBuffer<double>::Ptr beat_period_out;
+  SingleValueBuffer<double>::Ptr estimated_tempo_out;
   int sampling_rate_;
 };
 

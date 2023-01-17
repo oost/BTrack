@@ -1,9 +1,18 @@
 #ifndef BTRACK_UTILS_HPP
 #define BTRACK_UTILS_HPP
 
+#include <concepts>
 #include <numbers>
+#include <range/v3/range/concepts.hpp>
 
-template <typename T> void normalize_array(std::vector<T> &array) {
+/** Normalises a given array
+ * @param array a pointer to the array we wish to normalise
+ * @param N the length of the array
+ */
+template <typename T>
+void normalize_array(T &array)
+  requires ranges::bidirectional_range<T>
+{
   double sum = std::reduce(array.begin(), array.end());
 
   if (sum > 0) {
@@ -13,6 +22,16 @@ template <typename T> void normalize_array(std::vector<T> &array) {
   }
 };
 
+/** Calculates the mean of values in an array between index locations
+ * [startIndex,endIndex]
+ * @param array a pointer to an array that contains the values we wish to find
+ * the mean from
+ * @param startIndex the start index from which we would like to calculate the
+ * mean
+ * @param endIndex the final index to which we would like to calculate the
+ * mean
+ * @returns the mean of the sub-section of the array
+ */
 static double calculate_mean_of_array(std::vector<double>::const_iterator begin,
                                       std::vector<double>::const_iterator end) {
   if (begin == end) {

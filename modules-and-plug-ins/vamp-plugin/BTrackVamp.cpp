@@ -6,7 +6,7 @@
 #include "BTrackVamp.h"
 
 BTrackVamp::BTrackVamp(float inputSampleRate)
-    : Plugin(inputSampleRate)
+    : Plugin(inputSampleRate), b{std::make_unique<BTrack>()}
 // Also be sure to set your plugin parameters (presumably stored
 // in member variables) to their default values here -- the host
 // will not do that for you
@@ -157,7 +157,7 @@ bool BTrackVamp::initialise(size_t channels, size_t stepSize,
   m_stepSize = stepSize;
   m_blockSize = blockSize;
 
-  b.updateHopAndFrameSize(m_stepSize, m_blockSize);
+  b = std::make_unique<BTrack>(m_stepSize, m_blockSize);
 
   return true;
 }
@@ -177,13 +177,13 @@ BTrackVamp::FeatureSet BTrackVamp::process(const float *const *inputBuffers,
   }
 
   // process the frame in the beat tracker
-  b.process_audio_frame(frame);
+  b->process_audio_frame(frame);
 
   // create a FeatureSet
   FeatureSet featureSet;
 
   // if there is a beat in this frame
-  if (b.beat_due_in_current_frame()) {
+  if (b->beat_due_in_current_frame()) {
     // add a beat to the FeatureSet
     Feature beat;
     beat.hasTimestamp = true;
@@ -194,7 +194,7 @@ BTrackVamp::FeatureSet BTrackVamp::process(const float *const *inputBuffers,
 
   Feature tempo;
   tempo.hasTimestamp = false;
-  tempo.values.push_back(b.get_current_tempo_estimate());
+  tempo.values.push_back(b->get_current_tempo_estimate());
   featureSet[1].push_back(tempo);
 
   // return the feature set

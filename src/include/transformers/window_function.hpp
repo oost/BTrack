@@ -1,7 +1,7 @@
 #ifndef BTRACK__WINDOW_HPP
 #define BTRACK__WINDOW_HPP
 
-#include "./transformers/transformer.hpp"
+#include "./transformers/transformers/all.h"
 
 namespace transformers {
 //=======================================================================

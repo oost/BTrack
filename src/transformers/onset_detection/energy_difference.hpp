@@ -25,7 +25,7 @@ protected:
 
     prev_energy_sum_ = sum; // store energy value for next calculation
 
-    output_buffer_->value() = (sample > 0) ? sample : 0; // return difference
+    output_buffer_->set_value((sample > 0) ? sample : 0); // return difference
   }
 
   double prev_energy_sum_ = 0;

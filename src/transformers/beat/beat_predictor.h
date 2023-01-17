@@ -1,41 +1,47 @@
 #ifndef BTRACK__BEAT__BEAT_PREDICTOR_HPP
 #define BTRACK__BEAT__BEAT_PREDICTOR_HPP
 
-#include "transformers/buffer.hpp"
-#include "transformers/transformer.hpp"
 #include <memory>
+
+#include "all.h"
+#include "transformers/buffers/all.h"
+#include "transformers/transformers/all.h"
 
 namespace transformers {
 
-class BeatPredictor : public MultiTransformer {
+/**
+ * @brief Beat predictor
+ * Predicts the next beat, based upon the internal program state
+ * @param[out] m0               The memory area to copy to.
+ * @param[out] beat_counter     The memory area to copy to.
+ * @param[in]  beat_period      The memory area to copy from.
+ * @param[in]  cumulative_score The number of bytes to copy *
+ */
+
+class BeatPredictor : public MultiTransformer<MultiBuffer> {
 public:
-  static constexpr char const *beat_period_id = "beat_period";
-  static constexpr char const *cumulative_score_id = "cumulative_score";
-
-  static constexpr char const *m0_id = "m0";
-  static constexpr char const *beat_counter_id = "beat_counter";
-
   BeatPredictor(double tightness) : MultiTransformer() {
     tightness_ = tightness;
 
-    // Inputs
-    std::shared_ptr<MultiBuffer> input_buffer = std::make_shared<MultiBuffer>();
-    beat_period_ =
-        input_buffer->buffer_cast<SingleValueBuffer<double>>(beat_period_id);
-    cumulative_score_ =
-        input_buffer->buffer_cast<DataBuffer<double>>(cumulative_score_id);
-
     // Outputs
-    m0_ = std::make_shared<SingleValueBuffer<double>>();
-    beat_counter_ = std::make_shared<SingleValueBuffer<double>>();
-    this->output_buffer_->add_buffer(m0_id, m0_);
-    this->output_buffer_->add_buffer(beat_counter_id, beat_counter_);
+    m0_ = std::make_shared<SingleValueBuffer<int>>();
+    beat_counter_ = std::make_shared<SingleValueBuffer<int>>();
+
+    this->output_buffer_->add_buffer(transformers::constants::m0_id, m0_);
+    this->output_buffer_->add_buffer(transformers::constants::beat_counter_id,
+                                     beat_counter_);
   }
 
 protected:
-  void process() override {
+  void input_updated() override {
+    // Inputs
+    beat_period_ = input_buffer_->buffer_cast<SingleValueBuffer<double>>(
+        transformers::constants::beat_period_id);
+    cumulative_score_ = input_buffer_->buffer_cast<CircularBuffer<double>>(
+        transformers::constants::cumulative_score_id);
+  }
 
-    // output_buffer_->value() = sum;
+  void process() override {
     double beat_period = beat_period_->value();
     int window_size = static_cast<int>(beat_period);
     std::size_t cumulative_score_len = cumulative_score_->size();
@@ -101,23 +107,23 @@ protected:
 
       if (wcumscore > max) {
         max = wcumscore;
-        beat_counter_->value() = n;
+        beat_counter_->set_value(n);
       }
 
       n++;
     }
 
     // set next prediction time
-    m0_->value() = beat_counter_->value() + round(beat_period / 2);
+    m0_->set_value(beat_counter_->value() + round(beat_period / 2));
   }
 
   double tightness_;
 
-  SingleValueBuffer<double>::Ptr beat_period_;
-  DataBuffer<double>::Ptr cumulative_score_;
+  SingleValueBuffer<double>::CPtr beat_period_;
+  CircularBuffer<double>::Ptr cumulative_score_;
 
-  SingleValueBuffer<double>::Ptr m0_;
-  SingleValueBuffer<double>::Ptr beat_counter_;
+  SingleValueBuffer<int>::Ptr m0_;
+  SingleValueBuffer<int>::Ptr beat_counter_;
 };
 
 } // namespace transformers

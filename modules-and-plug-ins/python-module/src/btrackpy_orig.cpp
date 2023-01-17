@@ -1,7 +1,7 @@
 #include "BTrack.h"
 #include "OnsetDetectionFunction.h"
 #include "beat_tracker.hpp"
-#include "onset_detection_function.hpp"
+#include "onset_detection_function.h"
 
 #include "btrackpy_orig.hpp"
 

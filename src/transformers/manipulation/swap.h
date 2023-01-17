@@ -6,7 +6,7 @@
 #include <span>
 #include <vector>
 
-#include "transformers/transformer.hpp"
+#include "transformers/transformers/all.h"
 
 namespace transformers {
 
