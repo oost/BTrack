@@ -55,6 +55,8 @@ public:
     writeIndex = 0;
   }
 
+  const int getWriteIndex() const { return writeIndex; }
+
 private:
   std::vector<double> buffer;
   int writeIndex;

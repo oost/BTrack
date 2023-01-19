@@ -24,13 +24,18 @@ protected:
     }
 
     int lag = this->input_buffer_->size();
-    int samplesToKeep = this->output_buffer_->size() - lag;
-    for (int i = 0; i < samplesToKeep; i++) {
+    int numSamplesToKeep = this->output_buffer_->size() - lag;
+
+    // auto samples_to_keep = this->output_buffer_->data() |
+    // ranges::copy(this->output_buffer_->data().begin() + numSamplesToKeep,
+    //              this->output_buffer_->data().end(),
+    //              this->output_buffer_->data().begin());
+    for (int i = 0; i < numSamplesToKeep; i++) {
       (*this->output_buffer_)[i] = (*this->output_buffer_)[i + lag];
     }
 
     for (int i = 0; i < lag; i++) {
-      (*this->output_buffer_)[samplesToKeep + i] = (*this->input_buffer_)[i];
+      (*this->output_buffer_)[numSamplesToKeep + i] = (*this->input_buffer_)[i];
     }
   };
 };

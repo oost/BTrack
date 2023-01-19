@@ -48,10 +48,10 @@ protected:
     double max;
 
     start = output_buffer_->size() - round(2 * beat_period);
-    end = start = output_buffer_->size() - round(beat_period / 2);
+    end = output_buffer_->size() - round(beat_period / 2);
     winsize = end - start + 1;
 
-    double w1[winsize];
+    std::vector<double> w1(winsize);
     double v = -2 * beat_period;
     double wcumscore;
 
@@ -76,6 +76,7 @@ protected:
     latest_cumulative_score_value_ =
         ((1 - alpha_) * onset_df_sample) + (alpha_ * max);
 
+    const int wi = output_buffer_->write_index();
     output_buffer_->append(latest_cumulative_score_value_);
   }
 

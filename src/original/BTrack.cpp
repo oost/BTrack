@@ -551,6 +551,7 @@ void BTrack::calculateBalancedACF(double *onsetDetectionFunction) {
     } else {
       fftIn[i].r = 0.0;
       fftIn[i].i = 0.0;
+       
     }
   }
 
@@ -662,7 +663,7 @@ void BTrack::updateCumulativeScore(double odfSample) {
   }
 
   latestCumulativeScoreValue = ((1 - alpha) * odfSample) + (alpha * max);
-
+  const int wi = cumulativeScore.getWriteIndex();
   cumulativeScore.addSampleToEnd(latestCumulativeScoreValue);
 }
 

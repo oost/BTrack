@@ -60,7 +60,7 @@ protected:
     // subtract the threshold from the detection function and check that it is
     // not less than 0
     for (i = 0; i < x.size(); i++) {
-      y[i] = y[i] - x_thresh[i];
+      y[i] = x[i] - x_thresh[i];
       if (y[i] < 0) {
         y[i] = 0;
       }

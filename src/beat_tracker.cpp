@@ -29,6 +29,7 @@
 
 #include "beat_tracker.hpp"
 #include "transformers/beat/all.h"
+#include "transformers/manipulation/all.h"
 #include "utils.h"
 
 using transformers::AdaptiveThreshold;
@@ -36,10 +37,10 @@ using transformers::BalancedACF;
 using transformers::BeatPredictor;
 using transformers::Buffer;
 using transformers::CombFilterBank;
+using transformers::ExtendTransformer;
 using transformers::Resampler;
 using transformers::ScoreAccumulator;
 using transformers::TempoCalculator;
-using transformers::Transformer;
 
 constexpr std::size_t combfilterbank_size_ = 128;
 
@@ -164,23 +165,28 @@ void BTrack::create_beat_predictor_pipeline() {
 void BTrack::create_tempo_calculator_pipeline() {
 
   int resample_len = 512;
+  int fft_len = 1024;
+  int comb_filter_len_ = 128;
   Transformer::Ptr resampler_ = std::make_shared<Resampler>(resample_len);
 
   Transformer::Ptr adaptive_threshold_onset_ =
       std::make_shared<AdaptiveThreshold>(resample_len);
 
-  Transformer::Ptr balanced_acf_ = std::make_shared<BalancedACF>(resample_len);
+  Transformer::Ptr extender =
+      std::make_shared<ExtendTransformer<double, double>>(fft_len);
+
+  Transformer::Ptr balanced_acf_ = std::make_shared<BalancedACF>(fft_len);
 
   Transformer::Ptr comb_filter_bank_ =
-      std::make_shared<CombFilterBank>(resample_len);
+      std::make_shared<CombFilterBank>(comb_filter_len_);
 
   Transformer::Ptr adaptive_threshold_acf_ =
-      std::make_shared<AdaptiveThreshold>(resample_len);
+      std::make_shared<AdaptiveThreshold>(comb_filter_len_);
 
   tempo_calculator_ = std::make_shared<TempoCalculator>(
       sampling_rate_, hop_size_, tempo_fixed_);
 
-  resampler_ >> adaptive_threshold_onset_ >> balanced_acf_ >>
+  resampler_ >> adaptive_threshold_onset_ >> extender >> balanced_acf_ >>
       comb_filter_bank_ >> adaptive_threshold_acf_ >> tempo_calculator_;
 
   tempo_calculator_pipeline_ = std::make_shared<TransformerPipeline>();

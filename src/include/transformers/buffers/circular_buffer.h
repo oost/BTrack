@@ -61,6 +61,7 @@ public:
   }
 
   std::size_t size() const { return buffer_.size(); }
+  const int write_index() const { return write_index_; }
 
 private:
   std::vector<T> buffer_;

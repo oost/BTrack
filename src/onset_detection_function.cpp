@@ -27,7 +27,7 @@
 
 #include "onset_detection_function.h"
 #include "transformers/fft_operator.hpp"
-#include "transformers/manipulation/all.hpp"
+#include "transformers/manipulation/all.h"
 #include "transformers/onset_detection/all.hpp"
 #include "transformers/window/all.hpp"
 

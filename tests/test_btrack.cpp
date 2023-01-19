@@ -1,7 +1,7 @@
 #include <catch2/catch_all.hpp>
-#include <utility>
-
+#include <cstdlib>
 #include <math.h>
+#include <utility>
 
 #include "beat_tracker.hpp"
 #include "utils.h"
@@ -117,7 +117,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
     //======================================================================
     SECTION("processRandomOnsetDetectionFunctionSamples") {
       BTrack b(512);
-
+      std::srand(0);
       long numSamples = 20000;
 
       std::vector<double> odfSamples;
@@ -127,7 +127,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
       int numBeats = 0;
 
       for (int i = 0; i < numSamples; i++) {
-        odfSamples.push_back(random() % 1000);
+        odfSamples.push_back(rand() % 1000);
       }
 
       for (int i = 0; i < numSamples; i++) {
@@ -148,7 +148,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval == 68);
+      REQUIRE(maxInterval == 60);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
@@ -157,7 +157,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
     //======================================================================
     SECTION("processNegativeOnsetDetectionFunctionSamples") {
       BTrack b(512);
-
+      std::srand(0);
       long numSamples = 20000;
 
       std::vector<double> odfSamples;

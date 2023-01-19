@@ -1,7 +1,10 @@
 #ifndef BTRACK__SRC__TRANSFORMERS__BEAT__COMB_FILTER_BANK__H_
 #define BTRACK__SRC__TRANSFORMERS__BEAT__COMB_FILTER_BANK__H_
 
+#include <algorithm>
 #include <memory>
+#include <range/v3/algorithm/fill.hpp>
+// #include <range/v3/range/concepts.hpp>
 
 #include "all.h"
 #include "transformers/buffers/all.h"
@@ -24,7 +27,8 @@ public:
   static constexpr double rayparam = 43.0;
 
   CombFilterBank(std::size_t len)
-      : BufferedTransformer(len), weighting_vector_(len) {
+      : BufferedTransformer(len), weighting_vector_(len),
+        comb_filter_len_(len) {
 
     // create rayleigh weighting vector
     for (int n = 0; n < weighting_vector_.size(); n++) {
@@ -42,13 +46,14 @@ protected:
   void process() override {
     int numelem;
 
-    for (auto &elem : output_buffer_->data()) {
-      elem = 0;
-    }
+    ranges::fill(output_buffer_->data(), 0);
+    // for (auto &elem : output_buffer_->data()) {
+    //   elem = 0;
+    // }
 
     numelem = 4;
     // max beat period
-    for (int i = 2; i <= 127; i++) {
+    for (int i = 2; i < comb_filter_len_; i++) {
       // number of comb elements
       for (int a = 1; a <= numelem; a++) {
         // general state using normalisation of comb elements
@@ -62,6 +67,7 @@ protected:
       }
     }
   }
+  int comb_filter_len_;
   std::vector<double> weighting_vector_; /**<  to hold weighting vector */
 };
 
