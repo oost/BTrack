@@ -75,7 +75,6 @@ protected:
 
     // calculate future cumulative score
     double max;
-    int n;
     double wcumscore;
     for (int i = cumulative_score_len; i < (cumulative_score_len + window_size);
          i++) {
@@ -83,14 +82,12 @@ protected:
       end = i - round(beat_period / 2);
 
       max = 0;
-      n = 0;
-      for (int k = start; k <= end; k++) {
-        wcumscore = future_cumulative_score[k] * w1[n];
+      for (int k = 0; k <= end - start; k++) {
+        wcumscore = future_cumulative_score[start + k] * w1[k];
 
         if (wcumscore > max) {
           max = wcumscore;
         }
-        n++;
       }
 
       future_cumulative_score[i] = max;
@@ -98,18 +95,14 @@ protected:
 
     // predict beat
     max = 0;
-    n = 0;
 
-    for (int i = cumulative_score_len; i < (cumulative_score_len + window_size);
-         i++) {
-      wcumscore = future_cumulative_score[i] * w2[n];
+    for (int i = 0; i < window_size; i++) {
+      wcumscore = future_cumulative_score[cumulative_score_len + i] * w2[i];
 
       if (wcumscore > max) {
         max = wcumscore;
-        beat_counter_->set_value(n);
+        beat_counter_->set_value(i);
       }
-
-      n++;
     }
 
     // set next prediction time

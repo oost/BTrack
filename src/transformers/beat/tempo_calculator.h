@@ -93,8 +93,10 @@ private:
     int t_index2;
     // calculate tempo observation vector from beat period observation vector
     for (int i = 0; i < len_; i++) {
-      t_index = (int)round(tempo_to_lag_factor_ / ((double)((2 * i) + 80)));
-      t_index2 = (int)round(tempo_to_lag_factor_ / ((double)((4 * i) + 160)));
+      t_index = static_cast<int>(
+          round(tempo_to_lag_factor_ / (static_cast<double>((2 * i) + 80))));
+      t_index2 = static_cast<int>(
+          round(tempo_to_lag_factor_ / (static_cast<double>((4 * i) + 160))));
 
       tempo_observation_vector_[i] =
           (*input_buffer_)[t_index - 1] + (*input_buffer_)[t_index2 - 1];
@@ -139,8 +141,9 @@ private:
       prev_delta_[j] = delta_[j];
     }
 
-    beat_period_->set_value(round((60.0 * static_cast<double>(sampling_rate_)) /
-                                  (((2 * maxind) + 80) * ((double)hop_size_))));
+    beat_period_->set_value(
+        round((60.0 * static_cast<double>(sampling_rate_)) /
+              (((2 * maxind) + 80) * static_cast<double>(hop_size_))));
 
     if (beat_period_ > 0) {
       estimated_tempo_->set_value(

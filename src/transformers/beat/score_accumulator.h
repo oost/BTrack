@@ -44,33 +44,30 @@ protected:
     double beat_period = beat_period_ptr->value();
     double onset_df_sample = onset_df_sample_ptr->value();
 
-    int start, end, winsize;
-    double max;
-
-    start = output_buffer_->size() - round(2 * beat_period);
-    end = output_buffer_->size() - round(beat_period / 2);
-    winsize = end - start + 1;
+    int start = output_buffer_->size() - round(2 * beat_period);
+    int end = output_buffer_->size() - round(beat_period / 2);
+    int winsize = end - start + 1;
 
     std::vector<double> w1(winsize);
-    double v = -2 * beat_period;
-    double wcumscore;
 
     // create window
     for (int i = 0; i < winsize; i++) {
-      w1[i] = exp((-1 * pow(tightness_ * log(-v / beat_period), 2)) / 2);
-      v = v + 1;
+      w1[i] = exp(
+          (-1 *
+           pow(tightness_ * log(-(-2.0 * beat_period + i) / beat_period), 2)) /
+          2);
     }
 
     // calculate new cumulative score value
-    max = 0;
-    int n = 0;
-    for (int i = start; i <= end; i++) {
-      wcumscore = (*output_buffer_)[i] * w1[n];
+    double max = 0;
+    double wcumscore;
+    int max_index = end - start;
+    for (int i = 0; i <= max_index; i++) {
+      wcumscore = (*output_buffer_)[start + i] * w1[i];
 
       if (wcumscore > max) {
         max = wcumscore;
       }
-      n++;
     }
 
     latest_cumulative_score_value_ =

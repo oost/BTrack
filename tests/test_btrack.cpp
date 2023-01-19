@@ -167,7 +167,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
       int numBeats = 0;
 
       for (int i = 0; i < numSamples; i++) {
-        odfSamples.push_back(-1.0 * (random() % 1000));
+        odfSamples.push_back(-1.0 * (std::rand() % 1000));
       }
 
       for (int i = 0; i < numSamples; i++) {
@@ -188,7 +188,7 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that the maximum interval between beats does not
       // exceed 100 onset detection function samples (~ 1.3 seconds)
-      REQUIRE(maxInterval == 62);
+      REQUIRE(maxInterval == 60);
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));

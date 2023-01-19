@@ -33,8 +33,8 @@ public:
     // create rayleigh weighting vector
     for (int n = 0; n < weighting_vector_.size(); n++) {
       weighting_vector_[n] =
-          ((double)n / pow(rayparam, 2)) *
-          exp((-1 * pow((double)-n, 2)) / (2 * pow(rayparam, 2)));
+          (static_cast<double>(n) / pow(rayparam, 2)) *
+          exp((-1 * pow(-static_cast<double>(n), 2)) / (2 * pow(rayparam, 2)));
     }
   }
 
@@ -44,14 +44,9 @@ protected:
   void input_updated() override {}
 
   void process() override {
-    int numelem;
-
     ranges::fill(output_buffer_->data(), 0);
-    // for (auto &elem : output_buffer_->data()) {
-    //   elem = 0;
-    // }
 
-    numelem = 4;
+    int numelem = 4;
     // max beat period
     for (int i = 2; i < comb_filter_len_; i++) {
       // number of comb elements
@@ -67,6 +62,7 @@ protected:
       }
     }
   }
+
   int comb_filter_len_;
   std::vector<double> weighting_vector_; /**<  to hold weighting vector */
 };
