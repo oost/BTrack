@@ -29,7 +29,7 @@ public:
   void execute() {
     // need to check that inputBuffer exists first...
     process();
-    process_sinks();
+    execute_sinks();
   }
 
   const std::set<Ptr> sinks() const { return sinks_; }
@@ -38,7 +38,7 @@ public:
 
 protected:
   virtual void process() = 0;
-  void process_sinks() {
+  void execute_sinks() {
     for (auto &sink : sinks_) {
       sink->execute();
     }

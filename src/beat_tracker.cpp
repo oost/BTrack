@@ -24,6 +24,8 @@
 #include <iostream>
 #include <numbers>
 #include <numeric>
+#include <range/v3/numeric/accumulate.hpp>
+#include <range/v3/view/transform.hpp>
 #include <ranges>
 #include <samplerate.h>
 
@@ -72,6 +74,8 @@ BTrack::BTrack(int hop_size, int frame_size, int sampling_rate)
 void BTrack::initialize_state_variables() {
   onset_samples_ =
       std::make_shared<CircularBuffer<double>>(onset_df_buffer_len_);
+  recent_beat_periods_ =
+      std::make_shared<CircularBuffer<double>>(recent_beats_len_);
 
   m0_ptr = std::make_shared<SingleValueBuffer<int>>();
   beat_counter_ptr = std::make_shared<SingleValueBuffer<int>>();
@@ -239,15 +243,25 @@ void BTrack::set_hop_size(int hop_size) {
 }
 
 //=======================================================================
-bool BTrack::beat_due_in_current_frame() { return beat_due_in_frame_; }
+bool BTrack::beat_due_in_current_frame() const { return beat_due_in_frame_; }
 
 //=======================================================================
-double BTrack::get_current_tempo_estimate() {
+double BTrack::get_current_tempo_estimate() const {
   return estimated_tempo_ptr->value();
 }
 
+double BTrack::recent_average_tempo() const {
+  using namespace ranges;
+  double sum = 0;
+  for (int i = 0; i < recent_beat_periods_->size(); i++) {
+    sum += recent_beat_periods_->operator[](i);
+  }
+
+  return sum / recent_beat_periods_->size();
+}
+
 //=======================================================================
-int BTrack::get_hop_size() { return hop_size_; }
+int BTrack::get_hop_size() const { return hop_size_; }
 
 void BTrack::process_audio_frame(std::span<double> frame) {
   // calculate the onset detection function sample for the frame
@@ -345,6 +359,13 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
   if (beat_counter_ptr->value() == 0) {
     // indicate a beat should be output
     beat_due_in_frame_ = true;
+
+    std::chrono::time_point<std::chrono::steady_clock>
+        current_beat_time_point_ = std::chrono::steady_clock::now();
+    recent_beat_periods_->append(
+        (current_beat_time_point_ - last_beat_time_point_).count());
+    last_beat_time_point_ = current_beat_time_point_;
+
     tempo_calculator_pipeline_->execute();
     beat_period_ptr->set_value(beat_period_out->value());
     estimated_tempo_ptr->set_value(estimated_tempo_out->value());

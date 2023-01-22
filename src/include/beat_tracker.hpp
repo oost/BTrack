@@ -78,13 +78,13 @@ public:
 
   //=======================================================================
   /** @returns the current hop size being used by the beat tracker */
-  int get_hop_size();
+  int get_hop_size() const;
 
   /** @returns true if a beat should occur in the current audio frame */
-  bool beat_due_in_current_frame();
+  bool beat_due_in_current_frame() const;
 
   /** @returns the current tempo estimate being used by the beat tracker */
-  double get_current_tempo_estimate();
+  double get_current_tempo_estimate() const;
 
   //=======================================================================
   /** Set the tempo of the beat tracker
@@ -121,6 +121,8 @@ public:
    */
   static double get_beat_time_in_seconds(int frame_number, int hop_size,
                                          int fs);
+
+  double recent_average_tempo() const;
 
   /** Add new onset detection function sample to buffer and apply beat tracking
    * @param sample an onset detection function sample
@@ -179,6 +181,8 @@ protected:
   /**< the onset detection function buffer size */
   std::size_t onset_df_buffer_len_;
 
+  std::size_t recent_beats_len_ = 10;
+
   /**< indicates whether the tempo should be fixed or not */
   bool tempo_fixed_;
 
@@ -226,6 +230,11 @@ protected:
   CircularBuffer<double>::Ptr onset_samples_;
   /**< to hold cumulative score */
   CircularBuffer<double>::Ptr cumulative_score_ptr;
+
+  /**< to hold recent beats*/
+  CircularBuffer<double>::Ptr recent_beat_periods_;
+
+  std::chrono::time_point<std::chrono::steady_clock> last_beat_time_point_;
 };
 
 class BTrackLegacyAdapter : public BTrack {

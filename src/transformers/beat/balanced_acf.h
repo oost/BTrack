@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "../manipulation/all.h"
 #include "all.h"
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
@@ -27,37 +28,33 @@ public:
     // Set up FFT for calculating the auto-correlation function
     // FFTLengthForACFCalculation_ = 1024;
 
-    fft_input_buffer_ =
-        std::make_shared<ArrayBuffer<std::complex<double>>>(fft_len_);
+    map_operator_ =
+        std::make_shared<MapTransformer<double, std::complex<double>>>(
+            fft_len_, [](double v) { return FFTOperator::complex_t(v, 0.0); });
+
     fft_operator_ = FFTOperator::create_operator(fft_len_, false);
-    fft_operator_->set_input(fft_input_buffer_);
+
+    norm_operator_ = std::make_shared<
+        MapTransformer<std::complex<double>, std::complex<double>>>(
+        fft_len_, [](std::complex<double> v) {
+          return std::complex<double>(std::norm(v), 0);
+        });
 
     fft_operator_backwards_ = FFTOperator::create_operator(fft_len_, true);
-    fft_operator_backwards_->set_input(fft_operator_->output());
+
+    map_operator_ >> fft_operator_ >> norm_operator_ >> fft_operator_backwards_;
+
+    // Set input
   }
 
   virtual ~BalancedACF() {}
 
 protected:
-  void input_updated() override {}
+  void input_updated() override { map_operator_->set_input(input_buffer_); }
 
   void process() override {
 
-    // copy into complex array and zero pad
-    for (int i = 0; i < fft_len_; i++) {
-      double v = i < input_buffer_->size() ? (*input_buffer_)[i] : 0.0;
-      (*fft_input_buffer_)[i] = FFTOperator::complex_t(v, 0.0);
-    }
-
-    fft_operator_->execute();
-
-    ComplexArrayBuffer::Ptr output = fft_operator_->output_cast();
-    // multiply by complex conjugate
-    for (int i = 0; i < output->size(); i++) {
-      (*output)[i] = std::complex<double>(std::norm((*output)[i]), 0);
-    }
-
-    fft_operator_backwards_->execute();
+    map_operator_->execute();
 
     ComplexArrayBuffer::Ptr backwardOutput =
         fft_operator_backwards_->output_cast();
@@ -86,6 +83,8 @@ protected:
   // Internal state
   FFTOperator::Ptr fft_operator_;
   FFTOperator::Ptr fft_operator_backwards_;
+  Transformer::Ptr map_operator_;
+  Transformer::Ptr norm_operator_;
   ComplexArrayBuffer::Ptr fft_input_buffer_;
 };
 
