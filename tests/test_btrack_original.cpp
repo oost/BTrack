@@ -8,7 +8,7 @@
 using Catch::Matchers::WithinAbs;
 using Catch::Matchers::WithinULP;
 
-using namespace BTrackOriginal;
+using namespace btrack_original;
 
 TEST_CASE("BTrack ", "[BTrack]") {
   SECTION("Constructors") {

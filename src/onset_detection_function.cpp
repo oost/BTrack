@@ -55,12 +55,6 @@ OnsetDetectionFunction::OnsetDetectionFunction(
   hop_size_ = hop_size;     // set hop_size
   frame_size_ = frame_size; // set frame_size
 
-  // Create pipeline
-  pipeline_ = std::make_shared<TransformerPipeline>();
-
-  // Create buffer
-  buffer_ = std::make_shared<RealArrayBuffer>(hop_size);
-
   Transformer::Ptr shifter =
       std::make_shared<ShiftTransformer<double>>(frame_size);
   Transformer::Ptr window = createWindowTransformer(window_type, frame_size);
@@ -74,14 +68,9 @@ OnsetDetectionFunction::OnsetDetectionFunction(
   Transformer::Ptr odf =
       create_detection_function(onset_detection_function_type, frame_size);
 
-  shifter->add_sink(window);
-  window->add_sink(swapper);
-  swapper->add_sink(mapper);
-  mapper->add_sink(fft);
-  fft->add_sink(odf);
+  shifter >> window >> swapper >> mapper >> fft >> odf;
 
-  pipeline_->set_initial_transform(shifter);
-  pipeline_->set_input(buffer_);
+  set_initial_transform(shifter);
 }
 
 //=======================================================================
@@ -95,24 +84,3 @@ OnsetDetectionFunction::OnsetDetectionFunction(
 
 //=======================================================================
 OnsetDetectionFunction::~OnsetDetectionFunction() {}
-
-//=======================================================================
-
-double OnsetDetectionFunction::calculate_onset_detection_function_sample(
-    double *buffer) {
-  std::vector<double> buf_new(buffer, buffer + hop_size_);
-  return calculate_onset_detection_function_sample(buf_new);
-}
-
-double OnsetDetectionFunction::calculate_onset_detection_function_sample(
-    std::span<double> input) {
-
-  std::copy(input.begin(), input.end(), buffer_->data().begin());
-
-  pipeline_->execute();
-
-  SingleValueBuffer<double>::Ptr output =
-      pipeline_->output_cast<SingleValueBuffer<double>>();
-
-  return output->value();
-}

@@ -43,8 +43,12 @@ btrack_trackBeats(py::array_t<double> input, int hopSize, int frameSize) {
   ////////// BEGIN PROCESS ///////////////////
 
   int numframes = signal_length / hopSize;
-  std::vector<double> buffer(
-      hopSize); // buffer to hold one hopsize worth of audio samples
+
+  // buffer to hold one hopsize worth of audio samples
+  RealArrayBuffer::Ptr btrack_input_buffer =
+      std::make_shared<RealArrayBuffer>(hopSize);
+
+  std::vector<double> &buffer = btrack_input_buffer->data();
 
   // get number of audio frames, given the hop size and signal length
 
@@ -71,7 +75,7 @@ btrack_trackBeats(py::array_t<double> input, int hopSize, int frameSize) {
     // if a beat is currently scheduled
     if (b.beat_due_in_current_frame()) {
       r(beatnum, 0) = i;
-      r(beatnum, 1) = BTrack::get_beat_time_in_seconds(i, hopSize, 44100);
+      r(beatnum, 1) = b.get_beat_time_in_seconds(i);
       r(beatnum, 2) = b.get_current_tempo_estimate();
       beatnum = beatnum + 1;
     }
@@ -95,9 +99,10 @@ btrack_calculateOnsetDF(py::array_t<double> input, int hopSize, int frameSize) {
   DetectionFunctionType df_type =
       DetectionFunctionType::ComplexSpectralDifferenceHWR;
   int numframes = signal_length / hopSize;
-  std::vector<double> buffer(
-      hopSize); // buffer to hold one hopsize worth of audio samples
 
+  // buffer to hold one hopsize worth of audio samples
+  RealArrayBuffer::Ptr btrack_input_buffer =
+      std::make_shared<RealArrayBuffer>(hopSize);
   OnsetDetectionFunction onset(hopSize, frameSize, df_type,
                                WindowType::HanningWindow);
 
@@ -110,13 +115,18 @@ btrack_calculateOnsetDF(py::array_t<double> input, int hopSize, int frameSize) {
   ///////////////////////////////////////////
   //////// Begin Processing Loop ////////////
 
+  std::vector<double> &buffer = btrack_input_buffer->data();
+  SingleValueBuffer<double>::Ptr output_ =
+      onset.output_cast<SingleValueBuffer<double>>();
+
+  onset.set_input(btrack_input_buffer);
   for (int i = 0; i < numframes; i++) {
     // add new samples to frame
     for (int n = 0; n < hopSize; n++) {
       buffer[n] = ptr_input[(i * hopSize) + n];
     }
-
-    ptr_output[i] = onset.calculate_onset_detection_function_sample(buffer);
+    onset.execute();
+    ptr_output[i] = output_->value();
   }
   return result;
 }
@@ -155,7 +165,7 @@ btrack_trackBeatsFromOnsetDF(py::array_t<double> input, int hopSize,
     // process df sample in beat tracker
 
     if (b.beat_due_in_current_frame()) {
-      ptr_output[beatnum] = BTrack::get_beat_time_in_seconds(i, hopSize, 44100);
+      ptr_output[beatnum] = b.get_beat_time_in_seconds(i);
       beatnum = beatnum + 1;
     }
   }

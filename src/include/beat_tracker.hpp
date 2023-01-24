@@ -36,6 +36,7 @@ using transformers::CircularBuffer;
 using transformers::ComplexArrayBuffer;
 using transformers::FFTOperator;
 using transformers::MultiBuffer;
+using transformers::RealArrayBuffer;
 using transformers::SingleValueBuffer;
 using transformers::Transformer;
 
@@ -75,6 +76,7 @@ public:
    */
   void process_audio_frame(std::vector<double> &frame);
   void process_audio_frame(std::span<double> frame);
+  // void process_audio_frame(RealArrayBuffer::Ptr input_buffer);
 
   //=======================================================================
   /** @returns the current hop size being used by the beat tracker */
@@ -109,8 +111,7 @@ public:
    * @param fs the sampling frequency in Hz
    * @returns a beat time in seconds
    */
-  static double get_beat_time_in_seconds(long frame_number, int hop_size,
-                                         int fs);
+  double get_beat_time_in_seconds(long frame_number) const;
 
   /** Calculates a beat time in seconds, given the frame number, hop size and
    * sampling frequency. This version uses an int to represent the frame number
@@ -119,8 +120,9 @@ public:
    * @param fs the sampling frequency in Hz
    * @returns a beat time in seconds
    */
-  static double get_beat_time_in_seconds(int frame_number, int hop_size,
-                                         int fs);
+  double get_beat_time_in_seconds(int frame_number) const;
+
+  double get_current_beat_time_in_seconds() const;
 
   double recent_average_tempo() const;
 
@@ -160,9 +162,13 @@ protected:
   /** An OnsetDetectionFunction instance for calculating onset detection
    * functions */
   OnsetDetectionFunction::Ptr odf_;
+  SingleValueBuffer<double>::Ptr odf_output_;
+  RealArrayBuffer::Ptr odf_input_buffer_;
 
   //=======================================================================
   // parameters
+
+  int hop_counter_ = 0;
 
   /**< the tightness of the weighting used to calculate cumulative score */
   double tightness_;
@@ -174,6 +180,7 @@ protected:
   /**< the tempo in beats per minute */
   double tempo_;
   int sampling_rate_;
+  int beat_half_life_ = 15;
 
   /**< the hop size being used by the algorithm */
   int hop_size_;
@@ -181,7 +188,7 @@ protected:
   /**< the onset detection function buffer size */
   std::size_t onset_df_buffer_len_;
 
-  std::size_t recent_beats_len_ = 10;
+  std::size_t recent_beats_len_ = 30;
 
   /**< indicates whether the tempo should be fixed or not */
   bool tempo_fixed_;
@@ -233,27 +240,27 @@ protected:
 
   /**< to hold recent beats*/
   CircularBuffer<double>::Ptr recent_beat_periods_;
-
-  std::chrono::time_point<std::chrono::steady_clock> last_beat_time_point_;
+  std::vector<double> recent_beat_weights_;
+  double last_beat_time_point_ = 0;
 };
 
-class BTrackLegacyAdapter : public BTrack {
-public:
-  BTrackLegacyAdapter(int hop_size, int frame_size)
-      : BTrack{hop_size, frame_size} {};
-  void processOnsetDetectionFunctionSample(double sample);
-  void processAudioFrame(double *frame);
+// class BTrackLegacyAdapter : public BTrack {
+// public:
+//   BTrackLegacyAdapter(int hop_size, int frame_size)
+//       : BTrack{hop_size, frame_size} {};
+//   void processOnsetDetectionFunctionSample(double sample);
+//   void processAudioFrame(double *frame);
 
-  auto beatDueInCurrentFrame() { return beat_due_in_current_frame(); }
+//   auto beatDueInCurrentFrame() { return beat_due_in_current_frame(); }
 
-  auto getCurrentTempoEstimate() { return get_current_tempo_estimate(); }
+//   auto getCurrentTempoEstimate() { return get_current_tempo_estimate(); }
 
-  static auto getBeatTimeInSeconds(int frameNumber, int hop_size, int fs) {
-    return get_beat_time_in_seconds(frameNumber, hop_size, fs);
-  }
-  static auto getBeatTimeInSeconds(long frameNumber, int hop_size, int fs) {
-    return get_beat_time_in_seconds(frameNumber, hop_size, fs);
-  }
-};
+//   static auto getBeatTimeInSeconds(int frameNumber, int hop_size, int fs) {
+//     return get_beat_time_in_seconds(frameNumber, hop_size, fs);
+//   }
+//   static auto getBeatTimeInSeconds(long frameNumber, int hop_size, int fs) {
+//     return get_beat_time_in_seconds(frameNumber, hop_size, fs);
+//   }
+// };
 
 #endif

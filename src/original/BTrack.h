@@ -35,7 +35,7 @@
  * contains some static functions for calculating beat times in seconds
  */
 
-namespace BTrackOriginal {
+namespace btrack_original {
 class BTrack {
 
 public:
@@ -79,13 +79,13 @@ public:
 
   //=======================================================================
   /** @returns the current hop size being used by the beat tracker */
-  int getHopSize();
+  int getHopSize() const;
 
   /** @returns true if a beat should occur in the current audio frame */
-  bool beatDueInCurrentFrame();
+  bool beatDueInCurrentFrame() const;
 
   /** @returns the current tempo estimate being used by the beat tracker */
-  double getCurrentTempoEstimate();
+  double getCurrentTempoEstimate() const;
 
   /** @returns the most recent value of the cumulative score function */
   double getLatestCumulativeScoreValue();
@@ -255,6 +255,6 @@ private:
 #endif
 };
 
-} // namespace BTrackOriginal
+} // namespace btrack_original
 
 #endif

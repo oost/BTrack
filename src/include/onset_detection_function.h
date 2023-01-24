@@ -33,12 +33,13 @@
 using transformers::ArrayBuffer;
 using transformers::DetectionFunctionType;
 using transformers::RealArrayBuffer;
+using transformers::SingleValueBuffer;
 using transformers::TransformerPipeline;
 using transformers::WindowType;
 
 //=======================================================================
 /** A class for calculating onset detection functions. */
-class OnsetDetectionFunction {
+class OnsetDetectionFunction : public TransformerPipeline {
 public:
   using Ptr = std::unique_ptr<OnsetDetectionFunction>;
 
@@ -78,18 +79,15 @@ public:
    * processed
    * @returns the onset detection function sample
    */
-  double calculate_onset_detection_function_sample(std::span<double> buffer);
-  double calculate_onset_detection_function_sample(double *buffer);
 
 private:
   int frame_size_; /**< audio frame_size */
   int hop_size_;   /**< audio hop_size */
 
   //=======================================================================
-  TransformerPipeline::Ptr pipeline_;
+  // std::shared_ptr<RealArrayBuffer> input_buffer_;
 
-  //=======================================================================
-  std::shared_ptr<RealArrayBuffer> buffer_;
+  // SingleValueBuffer<double>::Ptr output_;
 };
 
 #endif // BTRACK__SRC__INCLUDE__ONSET_DETECTION_FUNCTION__H_

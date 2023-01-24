@@ -6,5 +6,6 @@
 #include "map.h"
 #include "shift.h"
 #include "swap.h"
+#include "take.h"
 
 #endif // BTRACK__TRANSFORMERS__MANIPULATION_HPP

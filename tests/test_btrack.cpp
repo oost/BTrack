@@ -54,24 +54,38 @@ TEST_CASE("BTrack ", "[BTrack]") {
     int frameSize = 1024;
     OnsetDetectionFunction odf(hopSize, frameSize);
 
+    RealArrayBuffer::Ptr input_buffer =
+        std::make_shared<RealArrayBuffer>(hopSize);
+    odf.set_input(input_buffer);
+
+    SingleValueBuffer<double>::Ptr output =
+        odf.output_cast<SingleValueBuffer<double>>();
+
+    std::vector<double> &data = input_buffer->data();
+
     SECTION("Constant") {
-      std::vector<double> data(hopSize, 1.0);
-      for (int i = 0; i < hopSize; i++) {
+
+      for (int i = 0; i < data.size(); i++) {
+        data[i] = 1.0;
       }
-      double res = odf.calculate_onset_detection_function_sample(data);
+      odf.execute();
+      double res = output->value();
       REQUIRE_THAT(res, WithinAbs(2707, 1));
-      res = odf.calculate_onset_detection_function_sample(data);
+      odf.execute();
+
+      res = output->value();
       REQUIRE_THAT(res, WithinAbs(985, 1));
     }
 
     SECTION("Linear") {
-      std::vector<double> data(hopSize, 1.0);
-      for (int i = 0; i < hopSize; i++) {
+      for (int i = 0; i < data.size(); i++) {
         data[i] = i;
       }
-      double res = odf.calculate_onset_detection_function_sample(data);
+      odf.execute();
+      double res = output->value();
       REQUIRE_THAT(res, WithinAbs(158214, 1));
-      res = odf.calculate_onset_detection_function_sample(data);
+      odf.execute();
+      res = output->value();
       REQUIRE_THAT(res, WithinAbs(1296727, 1));
     }
   }
@@ -112,6 +126,8 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
+
+      REQUIRE_THAT(b.recent_average_tempo(), WithinAbs(156.605, 0.001));
     }
 
     //======================================================================
@@ -152,6 +168,8 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
+
+      REQUIRE_THAT(b.recent_average_tempo(), WithinAbs(119.654, 0.001));
     }
 
     //======================================================================
@@ -192,6 +210,8 @@ TEST_CASE("BTrack ", "[BTrack]") {
 
       // check that we have at least a beat for every 100 samples
       REQUIRE(numBeats > (numSamples / 100));
+
+      REQUIRE_THAT(b.recent_average_tempo(), WithinAbs(119.654, 0.001));
     }
 
     //======================================================================
@@ -238,6 +258,8 @@ TEST_CASE("BTrack ", "[BTrack]") {
       // check that the number of correct beats is larger than 99%
       // of the total number of beats
       REQUIRE(std::abs(static_cast<double>(numBeats) / correct - 1) < 0.01);
+
+      REQUIRE_THAT(b.recent_average_tempo(), WithinAbs(120.185, 0.001));
     }
   }
 }

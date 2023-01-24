@@ -26,7 +26,7 @@
 
 #include <vector>
 
-namespace BTrackOriginal {
+namespace btrack_original {
 
 //=======================================================================
 /** The type of onset detection function to calculate */
@@ -209,6 +209,6 @@ private:
   std::vector<double> prevPhase;  /**< previous phase values */
   std::vector<double> prevPhase2; /**< second order previous phase values */
 };
-} // namespace BTrackOriginal
+} // namespace btrack_original
 
 #endif

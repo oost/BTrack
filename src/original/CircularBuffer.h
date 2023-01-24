@@ -30,7 +30,7 @@
  * efficient way which doesn't involve any memory allocation
  */
 
-namespace BTrackOriginal {
+namespace btrack_original {
 
 class CircularBuffer {
 public:
@@ -61,6 +61,6 @@ private:
   std::vector<double> buffer;
   int writeIndex;
 };
-} // namespace BTrackOriginal
+} // namespace btrack_original
 
 #endif /* CircularBuffer_hpp */

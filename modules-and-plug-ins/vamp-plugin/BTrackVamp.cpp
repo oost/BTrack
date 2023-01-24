@@ -169,7 +169,9 @@ void BTrackVamp::reset() {
 BTrackVamp::FeatureSet BTrackVamp::process(const float *const *inputBuffers,
                                            Vamp::RealTime timestamp) {
   // create an array to hold our audio frame
-  std::vector<double> frame(m_blockSize);
+  RealArrayBuffer::Ptr btrack_input_buffer =
+      std::make_shared<RealArrayBuffer>(m_blockSize);
+  std::vector<double> &frame = btrack_input_buffer->data();
 
   // copy samples into our frame
   for (int i = 0; i < m_blockSize; i++) {

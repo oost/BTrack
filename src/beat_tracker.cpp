@@ -20,6 +20,7 @@
 //=======================================================================
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <numbers>
@@ -44,8 +45,6 @@ using transformers::Resampler;
 using transformers::ScoreAccumulator;
 using transformers::TempoCalculator;
 
-constexpr std::size_t combfilterbank_size_ = 128;
-
 //=======================================================================
 // BTrack::BTrack() : BTrack(512, 1024, 44100) {}
 
@@ -67,11 +66,23 @@ BTrack::BTrack(int hop_size, int frame_size, int sampling_rate)
   odf_ = std::make_unique<OnsetDetectionFunction>(
       hop_size, frame_size, DetectionFunctionType::ComplexSpectralDifferenceHWR,
       WindowType::HanningWindow);
+  odf_input_buffer_ = std::make_shared<RealArrayBuffer>(hop_size);
+  odf_->set_input(odf_input_buffer_);
+  odf_output_ = odf_->output_cast<SingleValueBuffer<double>>();
 
+  recent_beat_weights_ = std::vector<double>(recent_beats_len_);
+  for (int i = 0; i < recent_beats_len_; i++) {
+    recent_beat_weights_[i] = std::exp(
+        -static_cast<double>(i - static_cast<int>(recent_beats_len_) + 1) /
+        static_cast<double>(beat_half_life_) * std::log(0.5));
+  }
   set_hop_size(hop_size);
 }
 
 void BTrack::initialize_state_variables() {
+  hop_counter_ = 0;
+  last_beat_time_point_ = 0;
+
   onset_samples_ =
       std::make_shared<CircularBuffer<double>>(onset_df_buffer_len_);
   recent_beat_periods_ =
@@ -87,6 +98,10 @@ void BTrack::initialize_state_variables() {
   m0_ptr->set_value(10);
   beat_counter_ptr->set_value(-1);
   beat_period_ptr->set_value(beat_period_from_tempo(tempo_));
+
+  for (int i = 0; i < recent_beat_periods_->size(); i++) {
+    recent_beat_periods_->append(60.0 / estimated_tempo_ptr->value());
+  }
 
   // initialise df_buffer to zeros
   int period = std::round(beat_period_ptr->value());
@@ -124,8 +139,8 @@ void BTrack::create_score_accumulator_pipeline() {
 
   // Beat Predictor
   score_accumulator_pipeline_ = std::make_shared<TransformerPipeline>();
-  score_accumulator_pipeline_->set_initial_transform(score_accumulator);
-  score_accumulator_pipeline_->set_input(input_buffer_ptr);
+  score_accumulator_pipeline_ >> score_accumulator;
+  input_buffer_ptr >> score_accumulator_pipeline_;
 
   cumulative_score_ptr =
       score_accumulator_pipeline_->output_cast<CircularBuffer<double>>();
@@ -151,8 +166,8 @@ void BTrack::create_beat_predictor_pipeline() {
 
   // Beat Predictor
   beat_predictor_pipeline_ = std::make_shared<TransformerPipeline>();
-  beat_predictor_pipeline_->set_initial_transform(beat_predictor);
-  beat_predictor_pipeline_->set_input(input_buffer_ptr);
+  beat_predictor_pipeline_ >> beat_predictor;
+  input_buffer_ptr >> beat_predictor_pipeline_;
 
   MultiBuffer::Ptr out = beat_predictor_pipeline_->output_cast<MultiBuffer>();
 
@@ -190,12 +205,13 @@ void BTrack::create_tempo_calculator_pipeline() {
   tempo_calculator_ = std::make_shared<TempoCalculator>(
       sampling_rate_, hop_size_, tempo_fixed_);
 
-  resampler_ >> adaptive_threshold_onset_ >> extender >> balanced_acf_ >>
-      comb_filter_bank_ >> adaptive_threshold_acf_ >> tempo_calculator_;
-
   tempo_calculator_pipeline_ = std::make_shared<TransformerPipeline>();
-  tempo_calculator_pipeline_->set_initial_transform(resampler_);
-  tempo_calculator_pipeline_->set_input(onset_samples_);
+
+  tempo_calculator_pipeline_ >> resampler_ >> adaptive_threshold_onset_ >>
+      extender >> balanced_acf_ >> comb_filter_bank_ >>
+      adaptive_threshold_acf_ >> tempo_calculator_;
+
+  onset_samples_ >> tempo_calculator_pipeline_;
 
   MultiBuffer::Ptr out = tempo_calculator_pipeline_->output_cast<MultiBuffer>();
 
@@ -212,10 +228,13 @@ void BTrack::create_tempo_calculator_pipeline() {
  * @param sampling_frequency
  * @return double
  */
-double BTrack::get_beat_time_in_seconds(long frame_number, int hop_size,
-                                        int sampling_frequency) {
-  return static_cast<double>(frame_number) * static_cast<double>(hop_size) /
-         static_cast<double>(sampling_frequency);
+double BTrack::get_beat_time_in_seconds(long frame_number) const {
+  return static_cast<double>(frame_number) * static_cast<double>(hop_size_) /
+         static_cast<double>(sampling_rate_);
+}
+
+double BTrack::get_current_beat_time_in_seconds() const {
+  return get_beat_time_in_seconds(hop_counter_);
 }
 
 /**
@@ -228,10 +247,8 @@ double BTrack::get_beat_time_in_seconds(long frame_number, int hop_size,
  * @return
  */
 
-double BTrack::get_beat_time_in_seconds(int frame_number, int hop_size,
-                                        int sampling_frequency) {
-  return get_beat_time_in_seconds(static_cast<long>(frame_number), hop_size,
-                                  sampling_frequency);
+double BTrack::get_beat_time_in_seconds(int frame_number) const {
+  return get_beat_time_in_seconds(static_cast<long>(frame_number));
 }
 
 void BTrack::set_hop_size(int hop_size) {
@@ -253,19 +270,24 @@ double BTrack::get_current_tempo_estimate() const {
 double BTrack::recent_average_tempo() const {
   using namespace ranges;
   double sum = 0;
+  double sum_w = 0;
   for (int i = 0; i < recent_beat_periods_->size(); i++) {
-    sum += recent_beat_periods_->operator[](i);
+    sum += recent_beat_periods_->operator[](i) * recent_beat_weights_[i];
+    sum_w += recent_beat_weights_[i];
   }
 
-  return sum / recent_beat_periods_->size();
+  return 60.0 * sum_w / sum;
 }
 
 //=======================================================================
 int BTrack::get_hop_size() const { return hop_size_; }
 
 void BTrack::process_audio_frame(std::span<double> frame) {
+  std::copy(frame.begin(), frame.end(), odf_input_buffer_->data().begin());
+
   // calculate the onset detection function sample for the frame
-  double sample = odf_->calculate_onset_detection_function_sample(frame);
+  odf_->execute();
+  double sample = odf_output_->value();
 
   // process the new onset detection function sample in the beat tracking
   // algorithm
@@ -278,13 +300,26 @@ void BTrack::process_audio_frame(std::vector<double> &frame) {
   process_audio_frame(input_span);
 }
 
-void BTrackLegacyAdapter::processAudioFrame(double *frame) {
-  std::vector<double> frame_vec(frame, frame + hop_size_);
-  process_audio_frame(frame_vec);
-}
+// void BTrack::process_audio_frame(RealArrayBuffer::Ptr input_buffer) {
+//   // calculate the onset detection function sample for the frame
+//   odf_->set_input(input_buffer);
+//   odf_->execute();
+//   double sample = odf_output_->value();
+
+//   // process the new onset detection function sample in the beat tracking
+//   // algorithm
+//   process_onset_detection_function_sample(sample);
+// }
+
+// void BTrackLegacyAdapter::processAudioFrame(double *frame) {
+//   std::vector<double> frame_vec(frame, frame + hop_size_);
+//   process_audio_frame(frame_vec);
+// }
 
 //=======================================================================
 void BTrack::process_onset_detection_function_sample(double new_sample) {
+  hop_counter_++;
+
   // we need to ensure that the onset
   // detection function sample is positive
   new_sample = fabs(new_sample);
@@ -360,10 +395,9 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
     // indicate a beat should be output
     beat_due_in_frame_ = true;
 
-    std::chrono::time_point<std::chrono::steady_clock>
-        current_beat_time_point_ = std::chrono::steady_clock::now();
-    recent_beat_periods_->append(
-        (current_beat_time_point_ - last_beat_time_point_).count());
+    double current_beat_time_point_ = get_current_beat_time_in_seconds();
+    recent_beat_periods_->append(current_beat_time_point_ -
+                                 last_beat_time_point_);
     last_beat_time_point_ = current_beat_time_point_;
 
     tempo_calculator_pipeline_->execute();
@@ -378,10 +412,10 @@ int BTrack::beat_period_from_tempo(double tempo) {
       (static_cast<double>(sampling_rate_) / static_cast<double>(hop_size_))));
 }
 
-void BTrackLegacyAdapter::processOnsetDetectionFunctionSample(
-    double newSample) {
-  process_onset_detection_function_sample(newSample);
-}
+// void BTrackLegacyAdapter::processOnsetDetectionFunctionSample(
+//     double newSample) {
+//   process_onset_detection_function_sample(newSample);
+// }
 
 //=======================================================================
 void BTrack::set_tempo(double tempo) {

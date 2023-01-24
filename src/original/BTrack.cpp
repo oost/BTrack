@@ -25,7 +25,7 @@
 #include <cmath>
 #include <iostream>
 
-using namespace BTrackOriginal;
+using namespace btrack_original;
 
 //=======================================================================
 BTrack::BTrack() : odf(512, 1024, ComplexSpectralDifferenceHWR, HanningWindow) {
@@ -193,13 +193,13 @@ void BTrack::updateHopAndFrameSize(int hopSize_, int frameSize_) {
 }
 
 //=======================================================================
-bool BTrack::beatDueInCurrentFrame() { return beatDueInFrame; }
+bool BTrack::beatDueInCurrentFrame() const { return beatDueInFrame; }
 
 //=======================================================================
-double BTrack::getCurrentTempoEstimate() { return estimatedTempo; }
+double BTrack::getCurrentTempoEstimate() const { return estimatedTempo; }
 
 //=======================================================================
-int BTrack::getHopSize() { return hopSize; }
+int BTrack::getHopSize() const { return hopSize; }
 
 //=======================================================================
 double BTrack::getLatestCumulativeScoreValue() {

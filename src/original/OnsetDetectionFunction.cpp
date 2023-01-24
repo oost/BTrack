@@ -26,7 +26,7 @@
 #define M_PI 3.14159265358979323846264338327950288
 #endif
 
-using namespace BTrackOriginal;
+using namespace btrack_original;
 
 //=======================================================================
 OnsetDetectionFunction::OnsetDetectionFunction(int hopSize_, int frameSize_)

@@ -3,6 +3,7 @@
 
 #include "constants.h"
 
+#include "acf_extract.h"
 #include "adaptive_threshold.h"
 #include "balanced_acf.h"
 #include "beat_predictor.h"

@@ -52,6 +52,8 @@ protected:
 };
 
 Transformer::Ptr operator>>(Transformer::Ptr source, Transformer::Ptr sink);
+Transformer::Ptr operator>>(Buffer::Ptr input_buffer,
+                            Transformer::Ptr transformer);
 
 } // namespace transformers
 
