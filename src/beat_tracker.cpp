@@ -388,6 +388,7 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
     beat_predictor_pipeline_->execute();
     beat_counter_ptr->set_value(beat_counter_out->value());
     m0_ptr->set_value(m0_out->value());
+    on_next_beat_cb_();
   }
 
   // if we are at a beat
@@ -403,6 +404,7 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
     tempo_calculator_pipeline_->execute();
     beat_period_ptr->set_value(beat_period_out->value());
     estimated_tempo_ptr->set_value(estimated_tempo_out->value());
+    on_beat_cb_();
   }
 }
 

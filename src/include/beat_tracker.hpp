@@ -242,6 +242,9 @@ protected:
   CircularBuffer<double>::Ptr recent_beat_periods_;
   std::vector<double> recent_beat_weights_;
   double last_beat_time_point_ = 0;
+
+  std::function<void()> on_beat_cb_ = []() {};
+  std::function<void()> on_next_beat_cb_ = []() {};
 };
 
 // class BTrackLegacyAdapter : public BTrack {

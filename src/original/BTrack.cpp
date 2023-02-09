@@ -551,7 +551,6 @@ void BTrack::calculateBalancedACF(double *onsetDetectionFunction) {
     } else {
       fftIn[i].r = 0.0;
       fftIn[i].i = 0.0;
-       
     }
   }
 
