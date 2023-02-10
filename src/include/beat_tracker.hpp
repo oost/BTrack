@@ -53,20 +53,28 @@ class BTrack {
 
 public:
   using Ptr = std::unique_ptr<BTrack>;
+  using beat_cb_t = std::function<void(double)>;
+  using next_beat_cb_t = std::function<void(uint64_t, double)>;
 
   /** Constructor assuming frame size will be double the hopSize
    * @param hop_size the hop size in audio samples
    */
-  BTrack(int hop_size = 512);
+  BTrack(std::size_t hop_size = 512);
 
   /** Constructor taking both hop_size and frame_size
    * @param hop_size the hop size in audio samples
    * @param frame_size the frame size in audio samples
    */
-  BTrack(int hop_size, int frame_size, int sampling_rate = 44100);
+  BTrack(std::size_t hop_size, std::size_t frame_size,
+         std::size_t sampling_rate = 44100);
 
   /** Destructor */
   ~BTrack() {}
+
+  void set_beat_callback(beat_cb_t beat_cb) { on_beat_cb_ = beat_cb; }
+  void set_next_beat_callback(next_beat_cb_t next_beat_cb) {
+    on_next_beat_cb_ = next_beat_cb;
+  }
 
   //=======================================================================
   /** Process a single audio frame
@@ -153,7 +161,7 @@ protected:
    * @param hop_size the hop size in audio samples
    */
 
-  void set_hop_size(int hop_size);
+  void set_hop_size(std::size_t hop_size);
 
   int beat_period_from_tempo(double tempo);
 
@@ -179,11 +187,11 @@ protected:
   double beat_period_;
   /**< the tempo in beats per minute */
   double tempo_;
-  int sampling_rate_;
+  std::size_t sampling_rate_;
   int beat_half_life_ = 15;
 
   /**< the hop size being used by the algorithm */
-  int hop_size_;
+  std::size_t hop_size_;
 
   /**< the onset detection function buffer size */
   std::size_t onset_df_buffer_len_;
@@ -243,27 +251,8 @@ protected:
   std::vector<double> recent_beat_weights_;
   double last_beat_time_point_ = 0;
 
-  std::function<void()> on_beat_cb_ = []() {};
-  std::function<void()> on_next_beat_cb_ = []() {};
+  beat_cb_t on_beat_cb_;
+  next_beat_cb_t on_next_beat_cb_;
 };
-
-// class BTrackLegacyAdapter : public BTrack {
-// public:
-//   BTrackLegacyAdapter(int hop_size, int frame_size)
-//       : BTrack{hop_size, frame_size} {};
-//   void processOnsetDetectionFunctionSample(double sample);
-//   void processAudioFrame(double *frame);
-
-//   auto beatDueInCurrentFrame() { return beat_due_in_current_frame(); }
-
-//   auto getCurrentTempoEstimate() { return get_current_tempo_estimate(); }
-
-//   static auto getBeatTimeInSeconds(int frameNumber, int hop_size, int fs) {
-//     return get_beat_time_in_seconds(frameNumber, hop_size, fs);
-//   }
-//   static auto getBeatTimeInSeconds(long frameNumber, int hop_size, int fs) {
-//     return get_beat_time_in_seconds(frameNumber, hop_size, fs);
-//   }
-// };
 
 #endif

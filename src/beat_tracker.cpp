@@ -49,10 +49,11 @@ using transformers::TempoCalculator;
 // BTrack::BTrack() : BTrack(512, 1024, 44100) {}
 
 //=======================================================================
-BTrack::BTrack(int hop_size) : BTrack(hop_size, 2 * hop_size, 44100) {}
+BTrack::BTrack(std::size_t hop_size) : BTrack(hop_size, 2 * hop_size, 44100) {}
 
 //=======================================================================
-BTrack::BTrack(int hop_size, int frame_size, int sampling_rate)
+BTrack::BTrack(std::size_t hop_size, std::size_t frame_size,
+               std::size_t sampling_rate)
     : sampling_rate_{sampling_rate} {
   // initialise parameters
   tightness_ = 5;
@@ -251,7 +252,7 @@ double BTrack::get_beat_time_in_seconds(int frame_number) const {
   return get_beat_time_in_seconds(static_cast<long>(frame_number));
 }
 
-void BTrack::set_hop_size(int hop_size) {
+void BTrack::set_hop_size(std::size_t hop_size) {
   hop_size_ = hop_size;
   onset_df_buffer_len_ = (512 * 512) / hop_size; // calculate df buffer size
 
@@ -388,7 +389,10 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
     beat_predictor_pipeline_->execute();
     beat_counter_ptr->set_value(beat_counter_out->value());
     m0_ptr->set_value(m0_out->value());
-    on_next_beat_cb_();
+    if (on_next_beat_cb_) {
+      on_next_beat_cb_(m0_ptr->value() * sampling_rate_ / hop_size_,
+                       recent_average_tempo());
+    }
   }
 
   // if we are at a beat
@@ -404,7 +408,9 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
     tempo_calculator_pipeline_->execute();
     beat_period_ptr->set_value(beat_period_out->value());
     estimated_tempo_ptr->set_value(estimated_tempo_out->value());
-    on_beat_cb_();
+    if (on_beat_cb_) {
+      on_beat_cb_(recent_average_tempo());
+    }
   }
 }
 
