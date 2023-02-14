@@ -9,7 +9,7 @@
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /*!
  * \brief Tempo calculator
@@ -175,6 +175,6 @@ private:
       prev_delta_fixed_; /**<  fixed tempo version of previous delta */
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__BEAT__TEMPO_CALCULATOR__H_

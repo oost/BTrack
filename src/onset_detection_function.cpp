@@ -31,6 +31,8 @@
 #include "transformers/onset_detection/all.hpp"
 #include "transformers/window/all.hpp"
 
+namespace btrack {
+
 using transformers::Buffer;
 using transformers::FFTOperator;
 using transformers::MapTransformer;
@@ -84,3 +86,5 @@ OnsetDetectionFunction::OnsetDetectionFunction(
 
 //=======================================================================
 OnsetDetectionFunction::~OnsetDetectionFunction() {}
+
+} // namespace btrack

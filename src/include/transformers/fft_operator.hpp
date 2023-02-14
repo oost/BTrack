@@ -7,7 +7,7 @@
 
 #include "./transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class FFTOperator
     : public BufferedTransformer<std::complex<double>, std::complex<double>> {
@@ -27,6 +27,6 @@ protected:
   bool backward_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__FFT_OPERATOR_HPP

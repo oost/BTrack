@@ -1,6 +1,7 @@
 #include "transformers/transformer_pipeline.hpp"
 #include "transformers/transformers/all.h"
-namespace transformers {
+
+namespace btrack::transformers {
 
 Transformer::Ptr operator>>(Transformer::Ptr source, Transformer::Ptr sink) {
   source->add_sink(sink);
@@ -19,4 +20,4 @@ Transformer::Ptr operator>>(TransformerPipeline::Ptr pipeline,
   return initial_transform;
 }
 
-} // namespace transformers
+} // namespace btrack::transformers

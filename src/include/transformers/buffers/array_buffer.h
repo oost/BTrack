@@ -3,7 +3,7 @@
 
 #include "buffer.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename T> class ArrayBuffer : public Buffer {
 public:
@@ -29,6 +29,6 @@ private:
 using RealArrayBuffer = ArrayBuffer<double>;
 using ComplexArrayBuffer = ArrayBuffer<std::complex<double>>;
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORMERS__BUFFERS__ARRAY_BUFFER_H

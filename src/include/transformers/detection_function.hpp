@@ -6,7 +6,7 @@
 
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 //=======================================================================
 /** The type of onset detection function to calculate */
@@ -31,5 +31,5 @@ public:
 
 Transformer::Ptr createDetectionFunction(DetectionFunctionType function_type);
 
-} // namespace transformers
+} // namespace btrack::transformers
 #endif // BTRACK__DETECTION_FUNCTION_HPP

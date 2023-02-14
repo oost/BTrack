@@ -5,6 +5,8 @@
 #include <numbers>
 #include <range/v3/range/concepts.hpp>
 
+namespace btrack {
+
 /** Normalises a given array
  * @param array a pointer to the array we wish to normalise
  * @param N the length of the array
@@ -55,5 +57,7 @@ static double princarg(double phase_val) {
 
   return phase_val;
 }
+
+} // namespace btrack
 
 #endif // BTRACK_UTILS_HPP

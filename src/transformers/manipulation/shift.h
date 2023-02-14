@@ -8,7 +8,7 @@
 
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename T>
 class ShiftTransformer : public BufferedTransformer<T, T> {
@@ -40,6 +40,6 @@ protected:
   };
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORMERS__SHIFT_HPP

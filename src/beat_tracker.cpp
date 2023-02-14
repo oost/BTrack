@@ -35,6 +35,8 @@
 #include "transformers/manipulation/all.h"
 #include "utils.h"
 
+namespace btrack {
+
 using transformers::AdaptiveThreshold;
 using transformers::BalancedACF;
 using transformers::BeatPredictor;
@@ -497,3 +499,5 @@ void BTrack::do_not_fix_tempo() {
   // set the tempo fix flag
   tempo_fixed_ = false;
 }
+
+} // namespace btrack

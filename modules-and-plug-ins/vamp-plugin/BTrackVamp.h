@@ -11,6 +11,7 @@
 
 #include "beat_tracker.hpp"
 
+using btrack::BTrack;
 using std::string;
 
 class BTrackVamp : public Vamp::Plugin {

@@ -8,7 +8,7 @@
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /*!
  * \brief Adaptive Threshold
@@ -68,6 +68,6 @@ protected:
   }
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__BEAT__ADAPTIVE_THRESHOLD__H_

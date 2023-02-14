@@ -32,7 +32,7 @@
  * efficient way which doesn't involve any memory allocation
  */
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename T> class CircularBuffer : public Buffer {
 public:
@@ -68,6 +68,6 @@ private:
   int write_index_ = 0;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif /* VTRACK__CIRCULAR_BUFFER_H */

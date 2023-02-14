@@ -11,7 +11,7 @@
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /*!
  * \brief ACFExtract
@@ -46,6 +46,6 @@ protected:
   const std::size_t buffer_size_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__BEAT__ACF_EXTRACT_H_

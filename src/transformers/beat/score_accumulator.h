@@ -7,7 +7,7 @@
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /*!
  * \brief Score Accumulator
@@ -89,6 +89,6 @@ protected:
   SingleValueBuffer<double>::Ptr onset_df_sample_ptr;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__BEAT__SCORE_ACCUMULATOR_HPP

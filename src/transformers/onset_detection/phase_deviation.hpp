@@ -9,7 +9,7 @@
 #include "../utils.h"
 #include "transformers/detection_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class PhaseDeviation : public DetectionFunction<std::complex<double>> {
 public:
@@ -65,6 +65,6 @@ protected:
   std::vector<double> prev_phase_;
   std::vector<double> prev_phase2_;
 };
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // DETECTION_FUNCTION__PHASE_DEVIATION_HPP

@@ -7,7 +7,7 @@
 
 #include "transformers/detection_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class EnergyEnvelope : public DetectionFunction<double> {
 public:
@@ -18,6 +18,6 @@ protected:
         input_buffer_->data().begin(), 0));
   }
 };
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // DETECTION_FUNCTION__ENERGY_ENVELOPE_HPP

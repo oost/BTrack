@@ -4,7 +4,7 @@
 #include "fftw3.h"
 #include "transformers/fft_operator.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 class FFTOperatorFFTW : public FFTOperator {
 public:
   FFTOperatorFFTW(int frame_size, bool backward);
@@ -19,6 +19,6 @@ private:
 
   fftw_plan plan_ = nullptr; /**< fftw plan */
 };
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__FFT_OPERATOR_FFTW_HPP

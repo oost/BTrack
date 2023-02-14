@@ -7,7 +7,7 @@
 
 #include "transformers/buffers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class TransformerPipeline;
 
@@ -55,6 +55,6 @@ Transformer::Ptr operator>>(Transformer::Ptr source, Transformer::Ptr sink);
 Transformer::Ptr operator>>(Buffer::Ptr input_buffer,
                             Transformer::Ptr transformer);
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORMERS__TRANSFORMER_HPP

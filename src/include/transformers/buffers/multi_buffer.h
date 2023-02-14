@@ -3,7 +3,7 @@
 
 #include "buffer.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class MultiBuffer : public Buffer {
 public:
@@ -40,6 +40,6 @@ private:
   std::map<std::string, Buffer::Ptr> buffers_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORMERS__BUFFERS__MULTI_BUFFER_H

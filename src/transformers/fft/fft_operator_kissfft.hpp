@@ -5,7 +5,7 @@
 #include "kiss_fft.h"
 #include "transformers/fft_operator.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 class FFTOperatorKissFFT : public FFTOperator {
 public:
   FFTOperatorKissFFT(int frame_size, bool backward);
@@ -16,5 +16,5 @@ private:
 
   kiss_fft_cfg cfg_; /**< Kiss FFT configuration */
 };
-} // namespace transformers
+} // namespace btrack::transformers
 #endif // BTRACK__FFT_OPERATOR_KISSFFT_HPP

@@ -6,6 +6,8 @@
 #include "btrackpy_orig.hpp"
 
 using namespace pybind11::literals;
+using btrack::RealArrayBuffer;
+using btrack::SingleValueBuffer;
 
 template <class B>
 py::array_t<double, py::array::c_style>
@@ -45,14 +47,14 @@ void init_btrackpy_orig(py::module_ &m) {
           Track beats from an onset detection function
       )pbdoc");
   m.def("calculateOnsetDFNew",
-        &btrack_orig_calculateOnsetDF<::OnsetDetectionFunction>, "input"_a,
-        "hopSize"_a = btrack_constants::default_hop_size,
+        &btrack_orig_calculateOnsetDF<btrack::OnsetDetectionFunction>,
+        "input"_a, "hopSize"_a = btrack_constants::default_hop_size,
         "frameSize"_a = btrack_constants::default_frame_size,
         R"pbdoc(
           Calculate the onset detection function
       )pbdoc");
 
-  m.def("trackBeatsNew", &btrack_orig_trackBeats<::BTrack>, "input"_a,
+  m.def("trackBeatsNew", &btrack_orig_trackBeats<btrack::BTrack>, "input"_a,
         "hopSize"_a = btrack_constants::default_hop_size,
         "frameSize"_a = btrack_constants::default_frame_size,
         R"pbdoc(
@@ -60,7 +62,7 @@ void init_btrackpy_orig(py::module_ &m) {
       )pbdoc");
 
   m.def("trackBeatsFromOnsetDFNew",
-        &btrack_orig_trackBeatsFromOnsetDF<::BTrack>, "input"_a,
+        &btrack_orig_trackBeatsFromOnsetDF<btrack::BTrack>, "input"_a,
         "hopSize"_a = btrack_constants::default_hop_size,
         "frameSize"_a = btrack_constants::default_frame_size,
         R"pbdoc(

@@ -3,7 +3,7 @@
 
 #include "./transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 //=======================================================================
 /** The type of window to use when calculating onset detection function samples
  */
@@ -42,6 +42,6 @@ protected:
   std::vector<double> window_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__WINDOW_HPP

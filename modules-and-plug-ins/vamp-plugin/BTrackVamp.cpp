@@ -5,6 +5,8 @@
 
 #include "BTrackVamp.h"
 
+using btrack::RealArrayBuffer;
+
 BTrackVamp::BTrackVamp(float inputSampleRate)
     : Plugin(inputSampleRate), b{std::make_unique<BTrack>()}
 // Also be sure to set your plugin parameters (presumably stored

@@ -7,7 +7,7 @@
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /**
  * @brief Beat predictor
@@ -118,6 +118,6 @@ protected:
   SingleValueBuffer<int>::Ptr beat_counter_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__BEAT__BEAT_PREDICTOR_HPP

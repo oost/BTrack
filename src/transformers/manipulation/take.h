@@ -5,7 +5,7 @@
 
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename I, typename O>
 class TakeTransformer : public BufferedTransformer<I, O> {
@@ -27,6 +27,6 @@ protected:
                  this->output_buffer_->data().begin());
   }
 };
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__MANIPULATION__TAKE__H_

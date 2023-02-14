@@ -3,7 +3,7 @@
 
 #include "transformers/window_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class HannWindowTransformer : public WindowTransformer {
 public:
@@ -19,6 +19,6 @@ public:
   }
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__WINDOW_FUNCTIONS__HANN_HPP

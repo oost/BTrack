@@ -7,7 +7,7 @@
 
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename I, typename O>
 class MapTransformer : public BufferedTransformer<I, O> {
@@ -33,6 +33,6 @@ protected:
 
   std::function<O(I)> fn_;
 };
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORMERS__MAP_HPP

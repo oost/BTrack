@@ -10,7 +10,7 @@
 #include "./tukey.hpp"
 #include "transformers/window_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 std::shared_ptr<WindowTransformer>
 createWindowTransformer(WindowType windowType, std::size_t frameSize) {
@@ -36,6 +36,6 @@ createWindowTransformer(WindowType windowType, std::size_t frameSize) {
   }
 }
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__WINDOW_FUNCTIONS__ALL_HPP

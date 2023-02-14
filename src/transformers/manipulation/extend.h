@@ -6,7 +6,7 @@
 
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename I, typename O>
 class ExtendTransformer : public BufferedTransformer<I, O> {
@@ -29,6 +29,6 @@ protected:
                  this->output_buffer_->data().end(), 0.0);
   }
 };
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__MANIPULATION__EXTEND__H_

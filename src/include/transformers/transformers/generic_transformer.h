@@ -5,7 +5,7 @@
 
 #include "transformer.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename IB, typename OB>
 class GenericTransformer : public Transformer {
@@ -39,6 +39,6 @@ protected:
   input_buffer_ptr input_buffer_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__INCLUDE__TRANSFORMERS__TRANSFORMERS__GENERIC_TRANSFORMER__H_

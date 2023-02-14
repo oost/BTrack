@@ -31,15 +31,6 @@
 #include "transformers/transformer_pipeline.hpp"
 #include "transformers/transformers/all.h"
 
-using transformers::ArrayBuffer;
-using transformers::CircularBuffer;
-using transformers::ComplexArrayBuffer;
-using transformers::FFTOperator;
-using transformers::MultiBuffer;
-using transformers::RealArrayBuffer;
-using transformers::SingleValueBuffer;
-using transformers::Transformer;
-
 // #include "btrack_config.h"
 
 //=======================================================================
@@ -48,6 +39,17 @@ using transformers::Transformer;
  * audio frames or onset detection function samples and also
  * contains some static functions for calculating beat times in seconds
  */
+
+namespace btrack {
+
+using transformers::ArrayBuffer;
+using transformers::CircularBuffer;
+using transformers::ComplexArrayBuffer;
+using transformers::FFTOperator;
+using transformers::MultiBuffer;
+using transformers::RealArrayBuffer;
+using transformers::SingleValueBuffer;
+using transformers::Transformer;
 
 class BTrack {
 
@@ -255,4 +257,5 @@ protected:
   next_beat_cb_t on_next_beat_cb_;
 };
 
+} // namespace btrack
 #endif

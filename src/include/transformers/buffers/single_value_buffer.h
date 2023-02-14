@@ -3,7 +3,7 @@
 
 #include "buffer.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename T> class SingleValueBuffer : public Buffer {
 public:
@@ -21,6 +21,6 @@ private:
   T value_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORMER__BUFFERS__SINGLE_VALUE_BUFFER_HPP

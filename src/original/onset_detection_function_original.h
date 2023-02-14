@@ -8,7 +8,7 @@
 
 class OnsetDetectionFunctionOriginal
     : public btrack_original::OnsetDetectionFunction,
-      public transformers::TransformerPipeline {
+      public btrack::transformers::TransformerPipeline {
 public:
   using Ptr = std::unique_ptr<OnsetDetectionFunctionOriginal>;
 

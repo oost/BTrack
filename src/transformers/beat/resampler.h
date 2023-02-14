@@ -8,7 +8,7 @@
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /**
  * @brief Resamples ODF
@@ -60,6 +60,6 @@ protected:
   std::vector<float> resampler_input_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__BEAT__RESAMPLER__H_

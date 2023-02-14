@@ -10,7 +10,7 @@
 #include "transformers/buffers/all.h"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /*!
  * \brief Comb Filter Bank
@@ -67,6 +67,6 @@ protected:
   std::vector<double> weighting_vector_; /**<  to hold weighting vector */
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__BEAT__COMB_FILTER_BANK__H_

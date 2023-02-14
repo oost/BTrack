@@ -7,7 +7,7 @@
 #include "buffers/all.h"
 #include "transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class TransformerPipeline : public Transformer {
 public:
@@ -78,6 +78,6 @@ protected:
 Transformer::Ptr operator>>(TransformerPipeline::Ptr source,
                             Transformer::Ptr sink);
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORM__TRANSFORMER_PIPELINE_HPP

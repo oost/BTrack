@@ -8,7 +8,7 @@
 
 #include "transformers/detection_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class ComplexSpectralDifference
     : public DetectionFunction<std::complex<double>> {
@@ -63,6 +63,6 @@ protected:
   std::vector<double> prevPhase2_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // DETECTION_FUNCTION__COMPLEX_SPECTRAL_DIFFERENCE_HPP

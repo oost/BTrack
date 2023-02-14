@@ -3,7 +3,7 @@
 
 #include "transformers/window_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class BlackmanWindow : public WindowTransformer {
 public:
@@ -21,6 +21,6 @@ public:
   }
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__WINDOWS__BLACKMAN_WINGOW_HPP

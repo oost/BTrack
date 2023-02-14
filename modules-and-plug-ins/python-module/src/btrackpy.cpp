@@ -5,6 +5,7 @@
 #include "btrackpy.hpp"
 
 using namespace pybind11::literals;
+using namespace btrack;
 
 void init_btrackpy(py::module_ &m) {
   m.def("calculateOnsetDF", &btrack_calculateOnsetDF, "input"_a,

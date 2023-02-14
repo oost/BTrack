@@ -9,7 +9,7 @@
 #include "transformers/transformer_pipeline.hpp"
 #include "transformers/transformers/all.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 /*!
  * \brief Balanced Auto Correlation
@@ -69,6 +69,6 @@ protected:
   // ComplexArrayBuffer::Ptr fft_input_buffer_;
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__TRANSFORMERS__BEAT__BALANCED_ACF__H_

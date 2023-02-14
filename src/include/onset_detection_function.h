@@ -30,6 +30,8 @@
 #include "transformers/transformer_pipeline.hpp"
 #include "transformers/window_function.hpp"
 
+namespace btrack {
+
 using transformers::ArrayBuffer;
 using transformers::DetectionFunctionType;
 using transformers::RealArrayBuffer;
@@ -89,5 +91,7 @@ private:
 
   // SingleValueBuffer<double>::Ptr output_;
 };
+
+} // namespace btrack
 
 #endif // BTRACK__SRC__INCLUDE__ONSET_DETECTION_FUNCTION__H_

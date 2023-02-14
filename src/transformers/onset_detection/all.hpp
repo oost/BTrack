@@ -13,7 +13,7 @@
 #include "./spectral_difference_hwr.hpp"
 #include "transformers/detection_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 Transformer::Ptr create_detection_function(DetectionFunctionType function_type,
                                            std::size_t frameSize) {
@@ -69,6 +69,6 @@ Transformer::Ptr create_detection_function(DetectionFunctionType function_type,
   }
 }
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__DETECTION_FUNCTIONS_HPP

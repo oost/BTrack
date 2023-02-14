@@ -3,7 +3,7 @@
 
 #include "generic_transformer.h"
 
-namespace transformers {
+namespace btrack::transformers {
 
 template <typename I, typename O>
 class BufferedTransformer
@@ -43,6 +43,6 @@ public:
   }
 };
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__SRC__INCLUDE__TRANSFORMERS__TRANSFORMERS__SPECIALIZED_TRANSFORMERS__H_

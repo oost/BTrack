@@ -8,7 +8,7 @@
 
 #include "transformers/detection_function.hpp"
 
-namespace transformers {
+namespace btrack::transformers {
 
 class HighFrequencySpectralDifference
     : public DetectionFunction<std::complex<double>> {
@@ -48,6 +48,6 @@ protected:
   std::vector<double> mag_spec_;
   std::vector<double> prev_mag_spec_;
 };
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__HIGH_FREQUENCY_SPECTRAL_DIFFERENCE_HPP

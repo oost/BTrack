@@ -8,7 +8,7 @@
 #include <string_view>
 #include <vector>
 
-namespace transformers {
+namespace btrack::transformers {
 
 class Buffer {
 public:
@@ -21,6 +21,6 @@ public:
 template <typename T>
 concept BufferObject = std::derived_from<T, Buffer>;
 
-} // namespace transformers
+} // namespace btrack::transformers
 
 #endif // BTRACK__TRANSFORMERS__BUFFERS__BUFFER_H

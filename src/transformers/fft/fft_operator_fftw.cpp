@@ -1,7 +1,7 @@
 #include "fft_operator_fftw.hpp"
 #include <iostream>
 
-using namespace transformers;
+using namespace btrack::transformers;
 
 FFTOperator::Ptr FFTOperator::create_operator(int frame_size, bool backward) {
   return std::make_unique<FFTOperatorFFTW>(frame_size, backward);
