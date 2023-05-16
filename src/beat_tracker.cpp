@@ -331,8 +331,8 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
   // to zero. this is to avoid problems further down the line
   new_sample = new_sample + 0.0001;
 
-  m0_ptr->set_value(m0_ptr->value() - 1);
-  beat_counter_ptr->set_value(beat_counter_ptr->value() - 1);
+  m0_ptr->decrement(1);
+  beat_counter_ptr->decrement(1);
   beat_due_in_frame_ = false;
 
   // add new sample at the end
@@ -389,10 +389,15 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
   score_accumulator_pipeline_->execute();
   if (m0_ptr->value() == 0) {
     beat_predictor_pipeline_->execute();
+    // Reset beat counter for next beat
     beat_counter_ptr->set_value(beat_counter_out->value());
+
+    // Reset m0 counter for next prediction
     m0_ptr->set_value(m0_out->value());
+
+    // Call next beat callback
     if (on_next_beat_cb_) {
-      on_next_beat_cb_(m0_ptr->value() * sampling_rate_ / hop_size_,
+      on_next_beat_cb_((m0_ptr->value() * hop_size_ * 1000000) / sampling_rate_,
                        recent_average_tempo());
     }
   }

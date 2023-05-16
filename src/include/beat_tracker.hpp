@@ -22,6 +22,7 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
+#include <functional>
 #include <span>
 #include <vector>
 

@@ -16,6 +16,7 @@ public:
   // T &value() { return value_; }
   const T &value() const { return value_; }
   void set_value(const T &v) { value_ = v; }
+  void decrement(const T d) { value_ -= d; }
 
 private:
   T value_;
