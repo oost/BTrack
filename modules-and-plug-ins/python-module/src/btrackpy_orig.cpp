@@ -147,6 +147,7 @@ btrack_orig_calculateOnsetDF(py::array_t<double> input, int hopSize,
       std::make_shared<RealArrayBuffer>(hopSize);
 
   ODF onset{hopSize, frameSize, df_type, 1};
+  onset.set_input(btrack_input_buffer);
 
   auto result = py::array_t<double>(numframes);
   py::buffer_info result_buffer = result.request();
@@ -161,7 +162,6 @@ btrack_orig_calculateOnsetDF(py::array_t<double> input, int hopSize,
   SingleValueBuffer<double>::Ptr output_ =
       onset.template output_cast<SingleValueBuffer<double>>();
 
-  onset.set_input(btrack_input_buffer);
   for (int i = 0; i < numframes; i++) {
     // add new samples to frame
     for (int n = 0; n < hopSize; n++) {

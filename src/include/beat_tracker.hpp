@@ -56,8 +56,8 @@ class BTrack {
 
 public:
   using Ptr = std::unique_ptr<BTrack>;
-  using beat_cb_t = std::function<void(double)>;
-  using next_beat_cb_t = std::function<void(uint64_t, double)>;
+  using beat_cb_t = std::function<void(double, double)>;
+  using next_beat_cb_t = std::function<void(uint64_t, double, double)>;
 
   /** Constructor assuming frame size will be double the hopSize
    * @param hop_size the hop size in audio samples

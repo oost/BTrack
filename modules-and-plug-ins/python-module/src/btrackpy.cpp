@@ -88,6 +88,8 @@ btrack_trackBeats(py::array_t<double> input, int hopSize, int frameSize) {
 //=======================================================================
 py::array_t<double, py::array::c_style>
 btrack_calculateOnsetDF(py::array_t<double> input, int hopSize, int frameSize) {
+  printf("Start calc onset\n");
+
   py::buffer_info input_buffer = input.request();
 
   if (input_buffer.ndim != 1)
@@ -104,12 +106,13 @@ btrack_calculateOnsetDF(py::array_t<double> input, int hopSize, int frameSize) {
   // buffer to hold one hopsize worth of audio samples
   RealArrayBuffer::Ptr btrack_input_buffer =
       std::make_shared<RealArrayBuffer>(hopSize);
+
   OnsetDetectionFunction onset(hopSize, frameSize, df_type,
                                WindowType::HanningWindow);
 
   auto result = py::array_t<double>(numframes);
-  py::buffer_info result_buffer = result.request();
 
+  py::buffer_info result_buffer = result.request();
   double *ptr_input = static_cast<double *>(input_buffer.ptr);
   double *ptr_output = static_cast<double *>(result_buffer.ptr);
 
@@ -117,10 +120,11 @@ btrack_calculateOnsetDF(py::array_t<double> input, int hopSize, int frameSize) {
   //////// Begin Processing Loop ////////////
 
   std::vector<double> &buffer = btrack_input_buffer->data();
+  onset.set_input(btrack_input_buffer);
+
   SingleValueBuffer<double>::Ptr output_ =
       onset.output_cast<SingleValueBuffer<double>>();
 
-  onset.set_input(btrack_input_buffer);
   for (int i = 0; i < numframes; i++) {
     // add new samples to frame
     for (int n = 0; n < hopSize; n++) {

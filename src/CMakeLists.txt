@@ -1,4 +1,8 @@
 find_package(SampleRate CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
+
 
 add_library(btrack beat_tracker.cpp onset_detection_function.cpp )
 

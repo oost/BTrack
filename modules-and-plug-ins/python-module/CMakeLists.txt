@@ -18,7 +18,7 @@ set(ENABLE_FFTW ON)
 # x_vcpkg_get_python_packages(PYTHON_VERSION "3" PACKAGES numpy OUT_PYTHON_VAR "PYTHON3")
 
 if(PROJECT_IS_TOP_LEVEL)
-  add_subdirectory(../../src btracklib)
+  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../src btracklib)
 endif()
 
 

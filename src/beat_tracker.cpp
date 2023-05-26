@@ -29,6 +29,7 @@
 #include <range/v3/view/transform.hpp>
 #include <ranges>
 #include <samplerate.h>
+#include <spdlog/spdlog.h>
 
 #include "beat_tracker.hpp"
 #include "transformers/beat/all.h"
@@ -397,8 +398,13 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
 
     // Call next beat callback
     if (on_next_beat_cb_) {
-      on_next_beat_cb_((m0_ptr->value() * hop_size_ * 1000000) / sampling_rate_,
-                       recent_average_tempo());
+      on_next_beat_cb_((beat_counter_ptr->value() * hop_size_ * 1000000) /
+                           sampling_rate_,
+                       get_current_tempo_estimate(), recent_average_tempo());
+
+      SPDLOG_INFO(
+          "Prediction beat_counter_ptr {}, time {}", beat_counter_ptr->value(),
+          (beat_counter_ptr->value() * hop_size_ * 1000000) / sampling_rate_);
     }
   }
 
@@ -416,7 +422,7 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
     beat_period_ptr->set_value(beat_period_out->value());
     estimated_tempo_ptr->set_value(estimated_tempo_out->value());
     if (on_beat_cb_) {
-      on_beat_cb_(recent_average_tempo());
+      on_beat_cb_(get_current_tempo_estimate(), recent_average_tempo());
     }
   }
 }
