@@ -25,11 +25,10 @@ namespace btrack::transformers {
 class TempoCalculator
     : public GenericTransformer<ArrayBuffer<double>, MultiBuffer> {
 public:
-  TempoCalculator(int sampling_rate, std::size_t hop_size, bool tempo_fixed)
-      : GenericTransformer(), sampling_rate_{sampling_rate},
-        hop_size_{hop_size}, tempo_fixed_{tempo_fixed} {
+  TempoCalculator(double sampling_rate, std::size_t hop_size, bool tempo_fixed)
+      : GenericTransformer(), hop_size_{hop_size}, tempo_fixed_{tempo_fixed} {
 
-    tempo_to_lag_factor_ = 60.0 * static_cast<double>(sampling_rate_) / 512.;
+    set_sampling_rate(sampling_rate);
 
     delta_.resize(len_);
     prev_delta_.resize(len_);
@@ -53,6 +52,11 @@ public:
                                beat_period_);
     output_buffer_->add_buffer(transformers::constants::estimated_tempo_id,
                                estimated_tempo_);
+  }
+
+  void set_sampling_rate(double sampling_rate) {
+    sampling_rate_ = sampling_rate;
+    tempo_to_lag_factor_ = 60.0 * sampling_rate_ / 512.;
   }
 
   void reset_delta(double tempo) {
@@ -142,12 +146,12 @@ private:
     }
 
     beat_period_->set_value(
-        round((60.0 * static_cast<double>(sampling_rate_)) /
+        round((60.0 * sampling_rate_) /
               (((2 * maxind) + 80) * static_cast<double>(hop_size_))));
 
     if (beat_period_ > 0) {
       estimated_tempo_->set_value(
-          60.0 * static_cast<double>(sampling_rate_) /
+          60.0 * sampling_rate_ /
           (static_cast<double>(hop_size_) * beat_period_->value()));
     }
   }
@@ -155,7 +159,7 @@ private:
   const bool tempo_fixed_;
   const std::size_t hop_size_;
   const std::size_t len_ = 41;
-  const int sampling_rate_;
+  double sampling_rate_;
 
   // Outputs
   SingleValueBuffer<double>::Ptr beat_period_;

@@ -69,10 +69,17 @@ public:
    * @param frame_size the frame size in audio samples
    */
   BTrack(std::size_t hop_size, std::size_t frame_size,
-         std::size_t sampling_rate = 44100);
+         double sampling_rate = 44100);
 
   /** Destructor */
   ~BTrack() {}
+
+  void set_sampling_rate(double sampling_rate) {
+    sampling_rate_ = sampling_rate;
+    // Recreate tempo calculator pipeline (as last step has a dependency on the
+    // sampling rate)
+    create_tempo_calculator_pipeline();
+  }
 
   void set_beat_callback(beat_cb_t beat_cb) { on_beat_cb_ = beat_cb; }
   void set_next_beat_callback(next_beat_cb_t next_beat_cb) {
@@ -190,7 +197,7 @@ protected:
   double beat_period_;
   /**< the tempo in beats per minute */
   double tempo_;
-  std::size_t sampling_rate_;
+  double sampling_rate_;
   int beat_half_life_ = 15;
 
   /**< the hop size being used by the algorithm */

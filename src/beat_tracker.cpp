@@ -56,7 +56,7 @@ BTrack::BTrack(std::size_t hop_size) : BTrack(hop_size, 2 * hop_size, 44100) {}
 
 //=======================================================================
 BTrack::BTrack(std::size_t hop_size, std::size_t frame_size,
-               std::size_t sampling_rate)
+               double sampling_rate)
     : sampling_rate_{sampling_rate} {
   // initialise parameters
   tightness_ = 5;
@@ -234,7 +234,7 @@ void BTrack::create_tempo_calculator_pipeline() {
  */
 double BTrack::get_beat_time_in_seconds(long frame_number) const {
   return static_cast<double>(frame_number) * static_cast<double>(hop_size_) /
-         static_cast<double>(sampling_rate_);
+         sampling_rate_;
 }
 
 double BTrack::get_current_beat_time_in_seconds() const {
@@ -428,9 +428,8 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
 }
 
 int BTrack::beat_period_from_tempo(double tempo) {
-  return static_cast<int>(round(
-      60.0 / tempo *
-      (static_cast<double>(sampling_rate_) / static_cast<double>(hop_size_))));
+  return static_cast<int>(
+      round(60.0 / tempo * (sampling_rate_ / static_cast<double>(hop_size_))));
 }
 
 // void BTrackLegacyAdapter::processOnsetDetectionFunctionSample(
