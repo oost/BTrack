@@ -398,13 +398,14 @@ void BTrack::process_onset_detection_function_sample(double new_sample) {
 
     // Call next beat callback
     if (on_next_beat_cb_) {
-      on_next_beat_cb_((beat_counter_ptr->value() * hop_size_ * 1000000) /
+      auto samples_to_next_beat = beat_counter_ptr->value();
+      on_next_beat_cb_((samples_to_next_beat * hop_size_ * 1000000) /
                            sampling_rate_,
                        get_current_tempo_estimate(), recent_average_tempo());
 
       SPDLOG_INFO(
-          "Prediction beat_counter_ptr {}, time {}", beat_counter_ptr->value(),
-          (beat_counter_ptr->value() * hop_size_ * 1000000) / sampling_rate_);
+          "Prediction beat_counter_ptr {}, time {}", samples_to_next_beat,
+          (samples_to_next_beat * hop_size_ * 1000000) / sampling_rate_);
     }
   }
 
