@@ -3,6 +3,7 @@
 
 #include <concepts>
 #include <numbers>
+#include <numeric>
 #include <range/v3/range/concepts.hpp>
 
 namespace btrack {
